@@ -20,7 +20,7 @@
 # Tip for knowledge:
 #   The vertex distance can be equal to the weight.
 
-
+import maya.cmds as cmds
 import pymel.core as pm
 import time
 import math

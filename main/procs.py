@@ -12,6 +12,7 @@ skin cluster utils
 export/import- skin/deformers 
 copy skin 
 vertex weight slider
+mirror deformer weight
 '''
 
 class find_data:

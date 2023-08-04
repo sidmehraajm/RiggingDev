@@ -1,3 +1,4 @@
+#TODO conditions for deformers radio button change
 import pymel.core as pm
 win_name = 'vn_skin_tools'
 win_title = 'Skin Tools'

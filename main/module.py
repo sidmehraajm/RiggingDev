@@ -2,6 +2,26 @@ import time
 import pymel.core as pm
 import maya.cmds as cmds
 
+class getData:
+    '''
+    TODO write doc
+    '''
+
+    def __init__(self, object = None):
+        self.obj = object
+    
+    def get_skinCluster(self):
+        pyObj = pm.PyNode(self.obj)
+        try:
+            self.skn = pm.ls(pm.listHistory(pyObj),typ = 'skinCluster')[0]
+            return self.skn
+
+        except:
+            pm.error('No skinCluster found!')
+    
+        
+
+
 class deformerConvert:
     '''
     TODO write doc
@@ -18,28 +38,30 @@ class deformerConvert:
         
         
         selection0 = cmds.ls(sl=True)
-        selecti_00 = selection0[0]
-        selecti_01 = selection0[1]
+        self.deformer = selection0[0]
+        self.mesh = selection0[1]
         cmds.select(d = True)
+        '''
         
-        #------------------------------------------------------Find_SkinCluster
         
-        def SkinClustor(self, NamSkinClust):
-            nodes = []
-        
-            node = cmds.listHistory(NamSkinClust)
-            for damn in node:
-                
-                if cmds.nodeType(damn) == 'skinCluster':
-                    nodes.append(damn)
-            return nodes
-        
-        cluster_00 = SkinClustor(selecti_00)
-        cluster_01no = SkinClustor(selecti_01)
+        #TODO get data class and skin cluster working in here from above and replace all SkinClustor to that class------ IMPORTANT 
+        Vishal i dont know how to use class inside another class above is the get data class which returns skin cluster replace all the SkinClustor with this class
+
+        class is working example is this - 
+
+        cl = getData(object = 'a')
+        cl.get_skinCluster()
+
+
+
+
+        '''
+        cluster_00 = SkinClustor(self.deformer)
+        cluster_01no = SkinClustor(self.mesh)
         
         #------------------------------------------------------Find_crv_Jnt
         
-        Aljnts = cmds.skinCluster( selecti_00, inf = True, q = True)
+        Aljnts = cmds.skinCluster( self.deformer, inf = True, q = True)
         
         #------------------------------------------------------if_no_skin_on mesh
         
@@ -47,13 +69,13 @@ class deformerConvert:
             if pm.objExists("New_Nagpal_Jnt") == False:
                 pm.joint(n = "New_Nagpal_Jnt")
                 
-            cmds.skinCluster('New_Nagpal_Jnt', selecti_01)
+            cmds.skinCluster('New_Nagpal_Jnt', self.mesh)
             
         cmds.select(d = True)
-        cluster_01 = SkinClustor(selecti_01)
+        cluster_01 = SkinClustor(self.mesh)
         #------------------------------------------------------Find_Hold_Jnt
         
-        Meeshjnts = cmds.skinCluster(selecti_01, inf = True, q = True)
+        Meeshjnts = cmds.skinCluster(self.mesh, inf = True, q = True)
         
         #------------------------------------------------------find unlocked join and lock it
         
@@ -73,7 +95,7 @@ class deformerConvert:
         cmds.setAttr(unlockJnt[0]+'.liw', 1)
         
         #------------------------------------------------------solvVert
-
+        #TODO not needed
         def solvVert(self,vertcnt):
             
             totalCounts = []
@@ -101,7 +123,7 @@ class deformerConvert:
             gotselected = solvVert(effectdVrt0)
             
         if len(cluster_01no) != 1:
-            polyCo = cmds.polyEvaluate(selecti_01, v=True )
+            polyCo = cmds.polyEvaluate(self.mesh, v=True )
             for i in range(polyCo):
                 gotselected.append(str(i))
         
@@ -110,7 +132,7 @@ class deformerConvert:
         
         
         #------------------------------------------------------save_Hold_Jnt_Weight
-        cmds.select(selecti_01)
+        cmds.select(self.mesh)
         #polyCount2 = cmds.polyEvaluate( v=True )
         cmds.select(d =True)
         
@@ -118,7 +140,7 @@ class deformerConvert:
         
         for fdf in gotselected:
             
-            JntVal = cmds.skinPercent(SkinClustor(selecti_01)[0], selecti_01+'.vtx['+fdf+']' , transform = unlockJnt[0], query=True )
+            JntVal = cmds.skinPercent(SkinClustor(self.mesh)[0], self.mesh+'.vtx['+fdf+']' , transform = unlockJnt[0], query=True )
             Value.append(JntVal)
         
         
@@ -126,15 +148,15 @@ class deformerConvert:
         
         for gfs in Aljnts:
         
-            cmds.select(selecti_01)
+            cmds.select(self.mesh)
         
             cmds.skinCluster(edit=True,ai=gfs,lw = 1)
         
         
         #------------------------------------------------------wire
         
-        wireDfm = pm.wire( selecti_01, w= selecti_00,n = selecti_00+'_coolforge', gw = False, en= 1.000000, ce= 0.000000, li= 0.000000, dds=[(0, 1000)] )[0]
-        pm.setAttr(selecti_00+"_coolforge.rotation", 0)
+        wireDfm = pm.wire( self.mesh, w= self.deformer,n = self.deformer+'_coolforge', gw = False, en= 1.000000, ce= 0.000000, li= 0.000000, dds=[(0, 1000)] )[0]
+        pm.setAttr(self.deformer+"_coolforge.rotation", 0)
         
         #------------------------------------------------------
         
@@ -148,13 +170,13 @@ class deformerConvert:
         
             whichVer.append(xx)
         
-            cmds.select(selecti_01)
+            cmds.select(self.mesh)
         
             cmds.duplicate(n = 'Get_Test_Mesh')
         
             cmds.move( -1, xx+'.rotatePivot', y=True, r = True)
         
-            cmds.select(selecti_01)
+            cmds.select(self.mesh)
         
             #polyCount = cmds.polyEvaluate( v=True )
         
@@ -172,7 +194,7 @@ class deformerConvert:
             #------------------------------------------------------
                 for d in gotselected:
                     
-                    Attr = pm.xform(selecti_01+'.vtx['+d+']', q =True, ws = True, t=True)[x]
+                    Attr = pm.xform(self.mesh+'.vtx['+d+']', q =True, ws = True, t=True)[x]
                     
                     set_01Z.append((Attr))
                     
@@ -224,7 +246,7 @@ class deformerConvert:
         
         
         
-                    cmds.skinPercent( SkinClustor(selecti_01)[0],selecti_01+'.vtx['+R+']', tv=(whichVer[0], FinelWeight[gotselected.index(R)]))
+                    cmds.skinPercent( SkinClustor(self.mesh)[0],self.mesh+'.vtx['+R+']', tv=(whichVer[0], FinelWeight[gotselected.index(R)]))
         
         
             cmds.delete('Get_Test_Mesh')
@@ -232,12 +254,12 @@ class deformerConvert:
         for fv in Aljnts:
             cmds.setAttr(fv+'.liw', 0)
         
-        cmds.skinCluster(SkinClustor(selecti_01)[0], e = True, ri= unlockJnt[0])
+        cmds.skinCluster(SkinClustor(self.mesh)[0], e = True, ri= unlockJnt[0])
         #---------------------------------------------------delete_Unwanted_Things
         if cluster_01no == []:
             pm.delete(unlockJnt[0])
         pm.delete(wireDfm)
-        pm.delete(selecti_00+'BaseWire')
+        pm.delete(self.deformer+'BaseWire')
         
         
             
@@ -253,3 +275,5 @@ class deformerConvert:
         
 
     '''-----------------------------------------------------------------------------------'''
+
+

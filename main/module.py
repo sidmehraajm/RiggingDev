@@ -17,64 +17,58 @@ class getData:
             return self.skn
 
         except:
-            pm.error('No skinCluster found!')
+            #pm.error('No skinCluster found!')
+            pass
     
         
 
 
-class deformerConvert:
+class deformerConvert(getData):
     '''
     TODO write doc
     '''
 
     def __init__(self, deformer = None, mesh = None):
+        getData.__init__(self)
         self.deformer = deformer
         self.mesh = mesh
         self.hold_joint = None
+        self.meshCluster = None
 
-        
+
 
     def deformer_skin_convert(self):
         
-        
-        selection0 = cmds.ls(sl=True)
-        self.deformer = selection0[0]
-        self.mesh = selection0[1]
+        #TODO #removed selection data , because we are taking deformer and mesh from user(window)
+
         cmds.select(d = True)
-        '''
-        
-        
-        #TODO get data class and skin cluster working in here from above and replace all SkinClustor to that class------ IMPORTANT 
-        Vishal i dont know how to use class inside another class above is the get data class which returns skin cluster replace all the SkinClustor with this class
 
-        class is working example is this - 
-
-        cl = getData(object = 'a')
-        cl.get_skinCluster()
+        #TODO HI sid, added getData class in this one
 
 
 
-
-        '''
-        cluster_00 = SkinClustor(self.deformer)
-        cluster_01no = SkinClustor(self.mesh)
+        self.meshCluster = getData(object = self.mesh).get_skinCluster()
+        print("get mesh skinCluster pass")
         
         #------------------------------------------------------Find_crv_Jnt
         
         Aljnts = cmds.skinCluster( self.deformer, inf = True, q = True)
-        
+        print("receved curve jnt pass")
         #------------------------------------------------------if_no_skin_on mesh
         
-        if cluster_01no == []:
-            if pm.objExists("New_Nagpal_Jnt") == False:
-                pm.joint(n = "New_Nagpal_Jnt")
+        if self.meshCluster == None:
+            if pm.objExists(self.mesh+"_New_Jnt") == False:
+                pm.joint(n = self.mesh+"_New_Jnt")
                 
-            cmds.skinCluster('New_Nagpal_Jnt', self.mesh)
+            cmds.skinCluster(self.mesh+"_New_Jnt", self.mesh)
             
+        print("new jnt created pass")
+
         cmds.select(d = True)
-        cluster_01 = SkinClustor(self.mesh)
-        #------------------------------------------------------Find_Hold_Jnt
-        
+        cluster_01 = getData(object = self.mesh).get_skinCluster()
+        print("get mesh skinCluster again pass")
+
+        #Find_Hold_Jnt
         Meeshjnts = cmds.skinCluster(self.mesh, inf = True, q = True)
         
         #------------------------------------------------------find unlocked join and lock it
@@ -117,12 +111,12 @@ class deformerConvert:
         cmds.select(d = True)
         
         gotselected = []
-        if len(cluster_01no) == 1:
-            cmds.skinCluster(cluster_01no, e=True, selectInfluenceVerts = unlockJnt)
+        if len(self.meshCluster) == 1:
+            cmds.skinCluster(self.meshCluster, e=True, selectInfluenceVerts = unlockJnt)
             effectdVrt0 = cmds.ls(sl=True, fl =1 )
             gotselected = solvVert(effectdVrt0)
             
-        if len(cluster_01no) != 1:
+        if len(self.meshCluster) != 1:
             polyCo = cmds.polyEvaluate(self.mesh, v=True )
             for i in range(polyCo):
                 gotselected.append(str(i))
@@ -256,7 +250,7 @@ class deformerConvert:
         
         cmds.skinCluster(SkinClustor(self.mesh)[0], e = True, ri= unlockJnt[0])
         #---------------------------------------------------delete_Unwanted_Things
-        if cluster_01no == []:
+        if self.meshCluster == []:
             pm.delete(unlockJnt[0])
         pm.delete(wireDfm)
         pm.delete(self.deformer+'BaseWire')

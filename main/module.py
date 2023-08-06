@@ -18,8 +18,18 @@ class getData:
 
         except:
             #pm.error('No skinCluster found!')
+            #TODO ye error ku hataya ya to None return rdete h 
             pass
-    
+    def get_influnced_joints(self,skin_node = None):
+        pyObj = pm.PyNode(skin_node)
+        try:
+            self.influences = pyObj.getInfluence()
+            return self.influences
+
+        except:
+            #pm.error('No skinCluster found!')
+            pass
+        
         
 
 
@@ -38,21 +48,15 @@ class deformerConvert(getData):
 
 
     def deformer_skin_convert(self):
-        
-        #TODO #removed selection data , because we are taking deformer and mesh from user(window)
-
-        cmds.select(d = True)
-
-        #TODO HI sid, added getData class in this one
-
-
+        '''
+        TODO write doc
+        '''
 
         self.meshCluster = getData(object = self.mesh).get_skinCluster()
-        print("get mesh skinCluster pass")
         
         #------------------------------------------------------Find_crv_Jnt
-        
-        Aljnts = cmds.skinCluster( self.deformer, inf = True, q = True)
+    
+        inf_jnts = getData().get_influnced_joints(self.deformer)
         print("receved curve jnt pass")
         #------------------------------------------------------if_no_skin_on mesh
         
@@ -140,7 +144,7 @@ class deformerConvert(getData):
         
         #------------------------------------------------------addInflunce_other_Jnts
         
-        for gfs in Aljnts:
+        for gfs in inf_jnts:
         
             cmds.select(self.mesh)
         
@@ -154,7 +158,7 @@ class deformerConvert(getData):
         
         #------------------------------------------------------
         
-        for xx in Aljnts:
+        for xx in inf_jnts:
         
             whichVer = []
         
@@ -245,7 +249,7 @@ class deformerConvert(getData):
         
             cmds.delete('Get_Test_Mesh')
         
-        for fv in Aljnts:
+        for fv in inf_jnts:
             cmds.setAttr(fv+'.liw', 0)
         
         cmds.skinCluster(SkinClustor(self.mesh)[0], e = True, ri= unlockJnt[0])

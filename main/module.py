@@ -72,9 +72,9 @@ class deformerConvert(getData):
         #check if there is a cluster else create a new one
         if self.meshCluster == None:
             if pm.objExists(self.mesh+"_New_Jnt") == False:
-                hold_jnt = pm.createNode('joint',n = self.mesh+"_New_Jnt")
+                self.hold_joint = pm.createNode('joint',n = self.mesh+"_New_Jnt")
                 
-            self.meshCluster = pm.skinCluster(hold_jnt, self.mesh)
+            self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
 
 
         #get influnced joints of the mesh

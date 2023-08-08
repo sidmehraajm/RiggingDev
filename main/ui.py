@@ -1,4 +1,6 @@
 import pymel.core as pm
+import maya.cmds as cmds
+
 win_name = 'vn_skin_tools'
 win_title = 'Skin Tools'
 win_size = (330,300)
@@ -11,7 +13,7 @@ if cmds.windowPref(win_name,q=1 ,exists=True ):
 '''
 pm.window(win_name, title=win_title, widthHeight=win_size, sizeable=False)
 
-Tab = tabLayout('Tabs',p=win_name,tc =0,stb=1,snt=1)
+Tab = pm.tabLayout('Tabs',p=win_name,tc =0,stb=1,snt=1)
 
 deformer_form = pm.formLayout('Converter',parent='Tabs')
 skin_utils_frame = pm.frameLayout('Export',parent='Tabs', label='Weights Import/Export', collapsable=True)  

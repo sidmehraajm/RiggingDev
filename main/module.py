@@ -65,46 +65,41 @@ class deformerConvert(getData):
         '''
         TODO write doc
         '''
-
+        #get mesh skin cluster
         self.meshCluster = getData(object = self.mesh).get_skinCluster()
         
+
+        #check if there is a cluster else create a new one
         if self.meshCluster == None:
             if pm.objExists(self.mesh+"_New_Jnt") == False:
-                pm.createNode('joint',n = self.mesh+"_New_Jnt")
+                hold_jnt = pm.createNode('joint',n = self.mesh+"_New_Jnt")
                 
-            self.meshCluster = pm.skinCluster(self.mesh+"_New_Jnt", self.mesh)
-            
-        print("new jnt created pass")
+            self.meshCluster = pm.skinCluster(hold_jnt, self.mesh)
 
-        cmds.select(d = True)
-        cluster_01 = getData(object = self.mesh).get_skinCluster()
-        print("get mesh skinCluster again pass")
 
-        #Find_Hold_Jnt
-        Meeshjnts = cmds.skinCluster(self.mesh, inf = True, q = True)
-        
-        #------------------------------------------------------find unlocked join and lock it
-        
+        #get influnced joints of the mesh
+        mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
+
+
+        #get unlocked joint to transfer deformer weight
         unlockJnt = []
-        
-        for n in Meeshjnts:
-            findlock = cmds.getAttr(n+'.liw')
+        for n in mesh_joints:
+            findlock = pm.getAttr(n+'.liw')
+            print (findlock)
             if findlock == False:
                 unlockJnt.append(n)
         
         if unlockJnt == []:
-            cmds.error( "Please unlock one joint" )
+            pm.error( "Please unlock one joint" )
         
         if len(unlockJnt) > 1:
-            cmds.error( "Please only one joint should be unlocked" )
+            pm.error( "Only one joint should be unlocked" )
             
-        cmds.setAttr(unlockJnt[0]+'.liw', 1)
+        #lock all other weights except the first unlocked weight
+        pm.setAttr(unlockJnt[0]+'.liw', 1)
 
 
-        #------------------------------------------------------getEffectedVrt
-        
-        cmds.select(d = True)
-        
+        #get effected verticies
         gotselected = []
         if self.meshCluster:
             pm.skinCluster(self.meshCluster, e=True, siv = unlockJnt)
@@ -116,59 +111,45 @@ class deformerConvert(getData):
             for i in range(polyCo):
                 gotselected.append(str(i))
         
-        
-        cmds.select(d = True)
-        
-        
-        #------------------------------------------------------save_Hold_Jnt_Weight
-        cmds.select(self.mesh)
-        #polyCount2 = cmds.polyEvaluate( v=True )
-        cmds.select(d =True)
-        
-        Value = []
+
+        #save hold joint's weight
+        hold_skin_value = []
 
         for fdf in gotselected:
-            print(self.meshCluster)
             JntVal = pm.skinPercent(str(self.meshCluster), self.mesh+'.vtx['+fdf+']' , transform = unlockJnt[0], query=True )
-            print (JntVal)
-            Value.append(JntVal)
+            hold_skin_value.append(JntVal)
         
-        
-        #------------------------------------------------------addInflunce_other_Jnts
-        
+        #Add other joints to skin cluster
         for gfs in self.inf_jnts:
-        
             pm.skinCluster(self.meshCluster, edit=True,ai=gfs,lw = 1)
-        
-        
-        #------------------------------------------------------wire
-        
-        wireDfm = pm.wire( self.mesh, w= self.deformer,n = self.deformer+'_coolforge', gw = False, en= 1.000000, ce= 0.000000, li= 0.000000, dds=[(0, 1000)] )[0]
-        pm.setAttr(self.deformer+"_coolforge.rotation", 0)
+
+        #Create wire deformer 
+        wireDfm = pm.wire( self.mesh, w= self.deformer, gw = False, en= 1.000000, ce= 0.000000, li= 0.000000, dds=[(0, 1000)] )[0]
+        pm.setAttr(wireDfm.rotation, 0)
         
         #------------------------------------------------------
         
         for xx in self.inf_jnts:
         
             whichVer = []
-        
+            '''
+            TODO ye whichVer bahar shift kr skte h kya list har bar band rhi h aur har bar append ho rha h esme toh ky mtlb h, whichVer = karke likh dega to vo ve chlega na 
+            ye duplicate wala change krde, pymel ka .getPointPosition se hojyega
+            example - 
+
+            vtx = pm.PyNode('pSphere1.vtx[334]')
+            pos = vtx.getPosition()
+
+            '''
             pm.select(xx, r =True)
-        
             pm.move( 1, xx+'.rotatePivot', y=True, r = True)
-        
             whichVer.append(xx)
-        
             pm.select(self.mesh)
-        
             pm.duplicate(n = 'Get_Test_Mesh')
-        
             pm.move( -1, xx+'.rotatePivot', y=True, r = True)
-        
             pm.select(self.mesh)
-        
             #polyCount = cmds.polyEvaluate( v=True )
-        
-        
+
             set_01ZMain = []
             set_02ZMain = []
             finlDist= []
@@ -220,9 +201,9 @@ class deformerConvert(getData):
             #---------------------------------------------------percentage_find
             FinelWeight = []
             
-            for nnn in range(len(Value)):
+            for nnn in range(len(hold_skin_value)):
                 
-                FinelW = (Value[nnn]/1.0)*finlDist[nnn]
+                FinelW = (hold_skin_value[nnn]/1.0)*finlDist[nnn]
                 FinelWeight.append(FinelW)
             
             #---------------------------------------------------addSkin
@@ -240,7 +221,7 @@ class deformerConvert(getData):
             cmds.delete('Get_Test_Mesh')
         
         for fv in self.inf_jnts:
-            cmds.setAttr(fv+'.liw', 0)
+            pm.setAttr(fv+'.liw', 0)
         
         pm.skinCluster(self.meshCluster, e = True, ri= unlockJnt[0])
         #---------------------------------------------------delete_Unwanted_Things
@@ -250,7 +231,7 @@ class deformerConvert(getData):
         pm.delete(self.deformer+'BaseWire')
         
         
-            
+        #TODO maya 2024 m curve delete hora h bnane k bad vo b dkna h kya dikat h thori safai krdi bs line 132 se tu change krde tarika calculation ka uske bad har deformer m kse kam krega uske conditions dalte h
             
 
 

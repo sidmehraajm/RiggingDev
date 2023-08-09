@@ -35,7 +35,7 @@ override_checkbox = pm.checkBox( label='Override Skin Cluster', align='left', p 
 unlocedvtx_checkbox = pm.checkBox( label='Unlocked Influneces Only', align='center', p = deformer_form )
 
 
-add_mesh_btn = pm.iconTextButton('mesh_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Mesh',p = deformer_form,w = 120,h=40, bgc = [(.3),(.4),(.3)],en = 1)
+add_mesh_btn = pm.iconTextButton('mesh_btn',style='iconAndTextHorizontal',image1='addClip.png',l = '   Select Mesh',p = deformer_form,w = 120,h=40, bgc = [(.3),(.4),(.3)],en = 1)
 add_df_btn = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Deformer',p = deformer_form,w = 120,h=40, bgc = [(.3),(.4),(.3)],en = 1)
 convert_btn = pm.iconTextButton('cvt_btn',style='iconAndTextHorizontal', image1='polyColorSetEditor.png', label='Convert to Skin',p = deformer_form,w=130,h=40, bgc = [(.3),(.5),(.5)])
 

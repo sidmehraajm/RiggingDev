@@ -1,6 +1,4 @@
 import pymel.core as pm
-import maya.cmds as cmds
-
 win_name = 'vn_skin_tools'
 win_title = 'Skin Tools'
 win_size = (330,300)
@@ -8,8 +6,8 @@ if(pm.window(win_name,q=1, exists=True)):
     pm.deleteUI(win_name, window=True)
     
 '''
-if cmds.windowPref(win_name,q=1 ,exists=True ):
-   cmds.windowPref(win_name, r=0 )
+if pm.windowPref(win_name,q=1 ,exists=True ):
+   pm.windowPref(win_name, r=0 )
 '''
 pm.window(win_name, title=win_title, widthHeight=win_size, sizeable=False)
 
@@ -22,40 +20,46 @@ output_win_frame = pm.frameLayout('Utils',parent='Tabs', label='Weights Mirror',
 
 radio_layout = pm.rowColumnLayout(nc =2,p = deformer_form,cal =[2,'center'], h = 50)
 radio_coll = pm.radioCollection( parent=radio_layout )
-crv_to_skn_btn = cmds.radioButton(l = 'Curve To Skin', p = radio_layout,sl =1)
-wire_to_skn_btn= cmds.radioButton(l = 'Wire To Skin', p = radio_layout,al ='center')
-softsel_to_skn = cmds.radioButton(l = 'Soft Selection To Skin', p = radio_layout)
-lat_to_skn_btn = cmds.radioButton(l = 'Lattice To Skin', p = radio_layout)
-wrap_to_skn = cmds.radioButton(l = 'Wrap To Skin', p = radio_layout)
-blendshape_to_skn = cmds.radioButton(l = 'Blendshape To Skin', p = radio_layout)
-cluster_to_skn = cmds.radioButton(l = 'Cluster To Skin', p = radio_layout)
+crv_to_skn_btn = pm.radioButton(l = 'Curve To Skin', p = radio_layout,sl =1)
+wire_to_skn_btn= pm.radioButton(l = 'Wire To Skin', p = radio_layout,al ='center')
+softsel_to_skn = pm.radioButton(l = 'Soft Selection To Skin', p = radio_layout)
+lat_to_skn_btn = pm.radioButton(l = 'Lattice To Skin', p = radio_layout)
+wrap_to_skn = pm.radioButton(l = 'Wrap To Skin', p = radio_layout)
+blendshape_to_skn = pm.radioButton(l = 'Blendshape To Skin', p = radio_layout)
+cluster_to_skn = pm.radioButton(l = 'Cluster To Skin', p = radio_layout)
 
 mesh_textfield = pm.textField('mesh_field', w = 180 , h=42 ,pht = 'Add Mesh',p = deformer_form,bgc = [(.17),(.18),(.19)])
 deformer_textfield = pm.textField('df_field', w = 180 , h=41 ,pht = 'Add Deformer',p = deformer_form,bgc = [(.17),(.18),(.19)])
 
-add_mesh_btn = pm.iconTextButton('mesh_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Mesh',p = deformer_form,w = 120,h=40, bgc = [(.15),(.15),(.15)],en = 1)
-add_df_btn = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Deformer',p = deformer_form,w = 120,h=40, bgc = [(.15),(.15),(.15)],en = 1)
-convert_btn = pm.iconTextButton('cvt_btn',style='iconAndTextHorizontal',image1='polyBakeSetNew.png',l = 'Convert to Skin',p = deformer_form,w = 150,h=40, bgc = [(.15),(.15),(.15)],en = 1, al ='center')
+override_checkbox = pm.checkBox( label='Override Skin Cluster', align='left', p = deformer_form )
+unlocedvtx_checkbox = pm.checkBox( label='Unlocked Influneces Only', align='center', p = deformer_form )
+
+
+add_mesh_btn = pm.iconTextButton('mesh_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Mesh',p = deformer_form,w = 120,h=40, bgc = [(.3),(.4),(.3)],en = 1)
+add_df_btn = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Deformer',p = deformer_form,w = 120,h=40, bgc = [(.3),(.4),(.3)],en = 1)
+convert_btn = pm.iconTextButton('cvt_btn',style='iconAndTextHorizontal', image1='polyColorSetEditor.png', label='Convert to Skin',p = deformer_form,w=130,h=40, bgc = [(.3),(.5),(.5)])
+
+
 
 pm.formLayout(deformer_form,e=1,
 	attachForm = [
-	
-	
+
 	(radio_layout,'top',15),
 	(mesh_textfield,'top',85),
-	(deformer_textfield,'top',135),
+	(deformer_textfield,'top',130),
 	(add_mesh_btn,'top',86),
-	(add_df_btn,'top',136),
-	(convert_btn,'top',185),
-
+	(add_df_btn,'top',131),
+	(override_checkbox,'top',180),
+	(unlocedvtx_checkbox,'top',200),	
+	(convert_btn,'top',228),
 
 	(radio_layout,'left',10),	
 	(mesh_textfield,'left',10),
 	(deformer_textfield,'left',10),
+	(override_checkbox,'left',11),
+	(unlocedvtx_checkbox,'left',11),
+	(convert_btn,'left',95),
 
-	(convert_btn,'left',75),
-
-	
 	(add_mesh_btn,'right',10),
 	(add_df_btn,'right',10),
 	

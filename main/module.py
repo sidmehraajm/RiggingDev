@@ -2,6 +2,21 @@ import time
 import pymel.core as pm
 import maya.cmds as cmds
 import math
+'''
+
+ui
+query definations - selection check error
+find data 
+create curve from transforms
+one defination for all deformer
+skin cluster utils 
+export/import- skin/deformers 
+copy skin 
+vertex weight slider
+mirror deformer weight
+'''
+
+
 
 class getData:
     '''

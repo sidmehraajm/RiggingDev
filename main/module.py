@@ -71,10 +71,11 @@ class deformerConvert(getData):
 
         #check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh+"_New_Jnt") == False:
-                self.hold_joint = pm.createNode('joint',n = self.mesh+"_New_Jnt")
+            if pm.objExists(self.mesh+"_Hold_Jnt") == False:
+                self.hold_joint = pm.createNode('joint',n = self.mesh+"_Hold_Jnt")
                 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
+            cmds.select(cl= 1)
 
 
         #get influnced joints of the mesh
@@ -85,7 +86,6 @@ class deformerConvert(getData):
         unlockJnt = []
         for n in mesh_joints:
             findlock = pm.getAttr(n+'.liw')
-            print (findlock)
             if findlock == False:
                 unlockJnt.append(n)
         
@@ -131,94 +131,87 @@ class deformerConvert(getData):
         
         for xx in self.inf_jnts:
         
-            whichVer = []
             '''
-            TODO ye whichVer bahar shift kr skte h kya list har bar band rhi h aur har bar append ho rha h esme toh ky mtlb h, whichVer = karke likh dega to vo ve chlega na 
-            ye duplicate wala change krde, pymel ka .getPointPosition se hojyega
-            example - 
+            TODO ye whichVer removed. :)
 
-            vtx = pm.PyNode('pSphere1.vtx[334]')
-            pos = vtx.getPosition()
+                 duplicating removed  :)
+
+                 why not xfrom instaed of getPosition ? 
+
+                 and do "getPosition" can check "world" postion ?
 
             '''
-            pm.select(xx, r =True)
-            pm.move( 1, xx+'.rotatePivot', y=True, r = True)
-            whichVer.append(xx)
-            pm.select(self.mesh)
-            pm.duplicate(n = 'Get_Test_Mesh')
-            pm.move( -1, xx+'.rotatePivot', y=True, r = True)
-            pm.select(self.mesh)
-            #polyCount = cmds.polyEvaluate( v=True )
 
-            set_01ZMain = []
-            set_02ZMain = []
-            finlDist= []
+            #polyCount = cmds.polyEvaluate(self.mesh, v=True )
+
+            old_Val = []
+            new_Val = []
+            Distance= []
                 
-            for x in range(3):
-                    
+            for xyz in "012":
                 set_01Z = []
                 
-                set_02Z = []
-                
-            #------------------------------------------------------
                 for d in gotselected:
                     
-                    Attr = pm.xform(self.mesh+'.vtx['+d+']', q =True, ws = True, t=True)[x]
+                    Attr = pm.xform(self.mesh+'.vtx['+d+']', q =True, ws = True, t=True)[int(xyz)]
                     
                     set_01Z.append((Attr))
-                    
+                pm.select(d =True)
+            
+                old_Val.append(set_01Z)
+            
             #------------------------------------------------------
+            pm.move( 1, xx+'.rotatePivot', y=True, r = True)
+
+            for xyz in "012":
+                set_02Z = []
+
                 for b in gotselected:
                     
-                    Attrs = pm.xform('Get_Test_Mesh'+'.vtx['+b+']', q =True, ws = True, t=True)[x]
+                    Attrs = pm.xform(self.mesh+'.vtx['+b+']', q =True, ws = True, t=True)[int(xyz)]
                     
                     set_02Z.append((Attrs))
-                
                 pm.select(d =True)
                 
-                set_01ZMain.append(set_01Z)
-                set_02ZMain.append(set_02Z)
+                new_Val.append(set_02Z)
+
+            pm.move( -1, xx+'.rotatePivot', y=True, r = True)
             
             #---------------------------------------------------getDiff 
             for o in range(len(gotselected)):
                     
-                x1      = float(set_01ZMain[0][o])
+                x1      = float(old_Val[0][o])
                 
-                y1      = float(set_01ZMain[1][o])
+                y1      = float(old_Val[1][o])
             
-                z1      = float(set_01ZMain[2][o])
+                z1      = float(old_Val[2][o])
                 
-                x2      = float(set_02ZMain[0][o])
+                x2      = float(new_Val[0][o])
             
-                y2      = float(set_02ZMain[1][o])
+                y2      = float(new_Val[1][o])
                 
-                z2      = float(set_02ZMain[2][o])
+                z2      = float(new_Val[2][o])
                     
                 findis = math.sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((z1-z2)*(z1-z2)))
                     
-                finlDist.append(findis)
+                Distance.append(findis)
         
             #---------------------------------------------------percentage_find
             FinelWeight = []
             
             for nnn in range(len(hold_skin_value)):
                 
-                FinelW = (hold_skin_value[nnn]/1.0)*finlDist[nnn]
+                FinelW = (hold_skin_value[nnn]/1.0)*Distance[nnn]
                 FinelWeight.append(FinelW)
             
             #---------------------------------------------------addSkin
             cmds.setAttr(unlockJnt[0]+'.liw', 0)
             for R in gotselected:
                 
-        
                 if FinelWeight[gotselected.index(R)] != 0.0:
         
+                    pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, FinelWeight[gotselected.index(R)]))
         
-        
-                    pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(whichVer[0], FinelWeight[gotselected.index(R)]))
-        
-        
-            cmds.delete('Get_Test_Mesh')
         
         for fv in self.inf_jnts:
             pm.setAttr(fv+'.liw', 0)
@@ -231,7 +224,8 @@ class deformerConvert(getData):
         pm.delete(self.deformer+'BaseWire')
         
         
-        #TODO maya 2024 m curve delete hora h bnane k bad vo b dkna h kya dikat h thori safai krdi bs line 132 se tu change krde tarika calculation ka uske bad har deformer m kse kam krega uske conditions dalte h
+        #TODO tere PC karenge curve delete issue solved mere pass nhi h "maya 2024".
+        # just to remind myself:- self.variable bnane h har jgha
             
 
 

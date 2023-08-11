@@ -2,6 +2,7 @@ import time
 import pymel.core as pm
 import maya.cmds as cmds
 import math
+import sys
 '''
 
 ui
@@ -59,7 +60,67 @@ class getData:
             totalCounts.append(str(start))
                 
         return (totalCounts)
+    
+
+
+        #---------------------------------------------------Distance between two vertex
+    def VertDistance(self, meshNam, VertNumList, moverNam ):
         
+        old_PoseVert = []
+        New_PoseVert = []
+        Distance= []
+
+        for xyz in [0,1,2]:
+            set_01Z = []
+            
+            for d in VertNumList:
+                
+                Attr = pm.xform(meshNam+'.vtx['+d+']', q =True, ws = True, t=True)[xyz]
+                
+                set_01Z.append((Attr))
+            pm.select(d =True)
+        
+            old_PoseVert.append(set_01Z)
+        
+
+        pm.move( 1, moverNam+'.rotatePivot', y=True, r = True)
+
+        for xyz in [0,1,2]:
+            set_02Z = []
+
+            for b in VertNumList:
+                
+                Attrs = pm.xform(meshNam+'.vtx['+b+']', q =True, ws = True, t=True)[xyz]
+                
+                set_02Z.append((Attrs))
+            pm.select(d =True)
+            
+            New_PoseVert.append(set_02Z)
+
+        pm.move( -1, moverNam+'.rotatePivot', y=True, r = True)
+        
+
+        for o in range(len(VertNumList)):
+                
+            x1,y1,z1      = float(old_PoseVert[0][o]), float(old_PoseVert[1][o]), float(old_PoseVert[2][o])
+            x2,y2,z2      = float(New_PoseVert[0][o]), float(New_PoseVert[1][o]), float(New_PoseVert[2][o])
+                
+            Distance.append(math.sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((z1-z2)*(z1-z2))))
+        
+        return Distance
+        
+
+
+        #---------------------------------------------------percentage_find
+    def WeightByOnePercentage(self, distance, hold_skin ):
+        
+        percentage = []
+
+        for nnn in range(len(hold_skin)):
+            Onepercentage = (hold_skin[nnn]/1.0)*  distance[nnn]
+            percentage.append(Onepercentage)
+
+        return percentage
 
 
 class deformerConvert(getData):
@@ -73,6 +134,8 @@ class deformerConvert(getData):
         self.mesh = mesh
         self.hold_joint = None
         self.meshCluster = None
+        self.vertNumber = []
+        self.hold_skin_value = []
         self.inf_jnts = getData().get_influnced_joints(self.deformer)
 
 
@@ -115,24 +178,22 @@ class deformerConvert(getData):
 
 
         #get effected verticies
-        gotselected = []
         if self.meshCluster:
             pm.skinCluster(self.meshCluster, e=True, siv = unlockJnt)
             effectdVrt0 = cmds.ls(sl=True, fl =1 )
-            gotselected = getData().solvVert(effectdVrt0)
+            self.vertNumber = getData().solvVert(effectdVrt0)
 
         else:
             polyCo = cmds.polyEvaluate(self.mesh, v=True )
             for i in range(polyCo):
-                gotselected.append(str(i))
+                self.vertNumber.append(str(i))
         
 
         #save hold joint's weight
-        hold_skin_value = []
 
-        for fdf in gotselected:
+        for fdf in self.vertNumber:
             JntVal = pm.skinPercent(str(self.meshCluster), self.mesh+'.vtx['+fdf+']' , transform = unlockJnt[0], query=True )
-            hold_skin_value.append(JntVal)
+            self.hold_skin_value.append(JntVal)
         
         #Add other joints to skin cluster
         for gfs in self.inf_jnts:
@@ -147,87 +208,28 @@ class deformerConvert(getData):
         for xx in self.inf_jnts:
         
             '''
-            TODO ye whichVer removed. :)
-
-                 duplicating removed  :)
-
-                 why not xfrom instaed of getPosition ? 
-
-                 and do "getPosition" can check "world" postion ?
-
+            TODO 
+            
             '''
-
-            #polyCount = cmds.polyEvaluate(self.mesh, v=True )
-
-            old_Val = []
-            new_Val = []
-            Distance= []
-                
-            for xyz in "012":
-                set_01Z = []
-                
-                for d in gotselected:
-                    
-                    Attr = pm.xform(self.mesh+'.vtx['+d+']', q =True, ws = True, t=True)[int(xyz)]
-                    
-                    set_01Z.append((Attr))
-                pm.select(d =True)
+        
+            Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
             
-                old_Val.append(set_01Z)
-            
-            #------------------------------------------------------
-            pm.move( 1, xx+'.rotatePivot', y=True, r = True)
+            WeightbyPercent = getData().WeightByOnePercentage(Fineldistance, self.hold_skin_value)
 
-            for xyz in "012":
-                set_02Z = []
 
-                for b in gotselected:
-                    
-                    Attrs = pm.xform(self.mesh+'.vtx['+b+']', q =True, ws = True, t=True)[int(xyz)]
-                    
-                    set_02Z.append((Attrs))
-                pm.select(d =True)
-                
-                new_Val.append(set_02Z)
+            #---------------------------------------------------skin apply
 
-            pm.move( -1, xx+'.rotatePivot', y=True, r = True)
-            
-            #---------------------------------------------------getDiff 
             for o in range(len(gotselected)):
-                    
-                x1      = float(old_Val[0][o])
-                
-                y1      = float(old_Val[1][o])
-            
-                z1      = float(old_Val[2][o])
-                
-                x2      = float(new_Val[0][o])
-            
-                y2      = float(new_Val[1][o])
-                
-                z2      = float(new_Val[2][o])
-                    
-                findis = math.sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((z1-z2)*(z1-z2)))
-                    
-                Distance.append(findis)
-        
-            #---------------------------------------------------percentage_find
-            FinelWeight = []
-            
-            for nnn in range(len(hold_skin_value)):
-                
-                FinelW = (hold_skin_value[nnn]/1.0)*Distance[nnn]
-                FinelWeight.append(FinelW)
-            
-            #---------------------------------------------------addSkin
+            print (WeightbyPercent)
             cmds.setAttr(unlockJnt[0]+'.liw', 0)
-            for R in gotselected:
+            for R in self.vertNumber:
                 
-                if FinelWeight[gotselected.index(R)] != 0.0:
+                if WeightbyPercent[self.vertNumber.index(R)] != 0.0:
         
-                    pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, FinelWeight[gotselected.index(R)]))
+                    pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, WeightbyPercent[self.vertNumber.index(R)]))
+
         
-        
+
         for fv in self.inf_jnts:
             pm.setAttr(fv+'.liw', 0)
         
@@ -239,8 +241,7 @@ class deformerConvert(getData):
         pm.delete(self.deformer+'BaseWire')
         
         
-        #TODO tere PC karenge curve delete issue solved mere pass nhi h "maya 2024".
+        #TODO 
         # just to remind myself:- self.variable bnane h har jgha
             
-
 

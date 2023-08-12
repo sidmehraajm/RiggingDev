@@ -219,8 +219,6 @@ class deformerConvert(getData):
 
             #---------------------------------------------------skin apply
 
-            for o in range(len(gotselected)):
-            print (WeightbyPercent)
             cmds.setAttr(unlockJnt[0]+'.liw', 0)
             for R in self.vertNumber:
                 

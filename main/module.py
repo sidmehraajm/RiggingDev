@@ -1,4 +1,5 @@
 import time
+import maya.OpenMaya as om
 import pymel.core as pm
 import maya.cmds as cmds
 import math
@@ -17,6 +18,27 @@ vertex weight slider
 mirror deformer weight
 '''
 
+def softSelection():
+    selection = om.MSelectionList()
+    softSelection = om.MRichSelection()
+    om.MGlobal.getRichSelection(softSelection)
+    softSelection.getSelection(selection)
+    
+    dagPath = om.MDagPath()
+    component = om.MObject()
+    
+    iter = om.MItSelectionList( selection,om.MFn.kMeshVertComponent )
+    elements = []
+    while not iter.isDone(): 
+        iter.getDagPath( dagPath, component )
+        dagPath.pop()
+        node = dagPath.fullPathName()
+        fnComp = om.MFnSingleIndexedComponent(component)   
+        
+        for i in range(fnComp.elementCount()):
+            elements.append([node, fnComp.element(i), fnComp.weight(i).influence()] )
+        iter.next()
+    return elements
 
 
 class getData:

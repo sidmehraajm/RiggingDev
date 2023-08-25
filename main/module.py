@@ -10,13 +10,35 @@ ui
 query definations - selection check error
 find data 
 create curve from transforms
-one defination for all deformer
+one defination for all deformer----*
 skin cluster utils 
 export/import- skin/deformers 
 copy skin 
 vertex weight slider
 mirror deformer weight
 '''
+
+# one defination for all
+def WhichDeformer(ddeformer):
+    
+    if ddeformer == 'Wire':
+        print ('Wire')
+        
+    if ddeformer == 'Lattice':
+        print ('Lattice')
+        
+    if ddeformer == 'Wrap':
+        print ('Wrap')
+        
+    if ddeformer == 'Cluster':
+        print ('Cluster')
+        
+    if ddeformer == 'SoftSelection':
+        print ('SoftSelection')
+        
+    if ddeformer == 'DeltaMesh':
+        print ('DeltaMesh')
+        
 
 def softSelection():
     selection = om.MSelectionList()

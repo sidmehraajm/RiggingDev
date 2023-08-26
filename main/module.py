@@ -40,6 +40,9 @@ def WhichDeformer(ddeformer):
         print ('DeltaMesh')
         
 
+def CreateCrv():
+    cmds.curve( p=[cmds.xform(d, t =1, q =1, ws =1) for d in cmds.ls(sl=1)])
+
 def softSelection():
     selection = om.MSelectionList()
     softSelection = om.MRichSelection()
@@ -167,6 +170,11 @@ class getData:
         return percentage
 
 
+
+
+
+
+
 class deformerConvert(getData):
     '''
     TODO write doc
@@ -207,10 +215,12 @@ class deformerConvert(getData):
         #get unlocked joint to transfer deformer weight
         unlockJnt = []
         for n in mesh_joints:
+            print (n)
             findlock = pm.getAttr(n+'.liw')
             if findlock == False:
                 unlockJnt.append(n)
         
+        print ("unlockJnt", unlockJnt)
         if unlockJnt == []:
             pm.error( "Please unlock one joint" )
         

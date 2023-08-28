@@ -18,6 +18,9 @@ vertex weight slider
 mirror deformer weight
 '''
 
+
+
+
 # one defination for all
 def WhichDeformer(ddeformer):
     
@@ -170,8 +173,25 @@ class getData:
         return percentage
 
 
+    #--------------------------------------------------- check deformer Type
+    def deformerType(self, Name):
+        nodes = []
 
-
+        for damn in cmds.listHistory(Name):
+            
+            if cmds.nodeType(damn) == 'wire':
+                pm.setAttr(damn+".rotation", 0.0)
+                nodes.append('wire')
+            if cmds.nodeType(damn) == 'lattice':
+                nodes.append('lattice')
+            if cmds.nodeType(damn) == 'cluster':
+                nodes.append('cluster')
+            if cmds.nodeType(damn) == 'wrap':
+                nodes.append('wrap')
+            if cmds.nodeType(damn) == 'blendShape':
+                nodes.append('blendShape')
+                
+        return nodes[0]
 
 
 
@@ -215,12 +235,10 @@ class deformerConvert(getData):
         #get unlocked joint to transfer deformer weight
         unlockJnt = []
         for n in mesh_joints:
-            print (n)
             findlock = pm.getAttr(n+'.liw')
             if findlock == False:
                 unlockJnt.append(n)
         
-        print ("unlockJnt", unlockJnt)
         if unlockJnt == []:
             pm.error( "Please unlock one joint" )
         

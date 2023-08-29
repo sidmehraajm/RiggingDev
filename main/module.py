@@ -22,7 +22,7 @@ mirror deformer weight
 
 
 # one defination for all
-def WhichDeformer(ddeformer):
+def WhichDeformerButton(ddeformer):
     
     if ddeformer == 'Wire':
         print ('Wire')
@@ -311,6 +311,21 @@ class deformerConvert(getData):
         pm.delete(self.deformer+'BaseWire')
         
         
+
+    def rest_deformer_skin_convert(self):
+
+        deformerTyp =getData().deformerType(self.mesh) # to check type of deformer and set wire rotation 1
+
+        meshSkinClust = getData().get_skinCluster(self.mesh)
+        deformerSkinClust = getData().get_skinCluster(self.deformer)
+
+        if len(deformerSkinClust))==0: # error if no skin
+            print (pm.error( "<<<<<(no skin on deformer)>>>>>" ))
+
+        if deformerSkinClust[0] in meshSkinClust: # reomve if same skincluster in mesh
+            meshSkinClust.remove(deformerSkinClust[0])
+
+
         #TODO 
         # just to remind myself:- self.variable bnane h har jgha
             

@@ -326,6 +326,22 @@ class deformerConvert(getData):
             meshSkinClust.remove(deformerSkinClust[0])
 
 
+
+
+
+
+        #check if there is a cluster else create a new one
+        if self.meshCluster == None:
+            if pm.objExists(self.mesh+"_Hold_Jnt") == False:
+                self.hold_joint = pm.createNode('joint',n = self.mesh+"_Hold_Jnt")
+                
+            self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
+            cmds.select(cl= 1)
+
+
+        #get influnced joints of the mesh
+        mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
+
         #TODO 
         # just to remind myself:- self.variable bnane h har jgha
             

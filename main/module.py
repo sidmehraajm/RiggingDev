@@ -111,6 +111,22 @@ class getData:
                 
         return (totalCounts)
     
+    
+    def effectedVertNumber(self, meshClust, unlockJt):
+        vertNumb =[]
+
+        if meshClust:
+            pm.skinCluster(meshClust, e=True, siv = unlockJt)
+            effectdVrt0 = cmds.ls(sl=True, fl =1 )
+            vertNumb = getData().solvVert(effectdVrt0)
+
+        else:
+            polyCo = cmds.polyEvaluate(self.mesh, v=True )
+            for i in range(polyCo):
+                vertNumb.append(str(i))
+
+        return vertNumb
+    
 
 
         #---------------------------------------------------Distance between two vertex
@@ -245,21 +261,13 @@ class deformerConvert(getData):
         if len(unlockJnt) > 1:
             pm.error( "Only one joint should be unlocked" )
             
+            
         #lock all other weights except the first unlocked weight
         pm.setAttr(unlockJnt[0]+'.liw', 1)
 
-
         #get effected verticies
-        if self.meshCluster:
-            pm.skinCluster(self.meshCluster, e=True, siv = unlockJnt)
-            effectdVrt0 = cmds.ls(sl=True, fl =1 )
-            self.vertNumber = getData().solvVert(effectdVrt0)
+        self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
 
-        else:
-            polyCo = cmds.polyEvaluate(self.mesh, v=True )
-            for i in range(polyCo):
-                self.vertNumber.append(str(i))
-        
 
         #save hold joint's weight
 
@@ -319,7 +327,7 @@ class deformerConvert(getData):
         meshSkinClust = getData().get_skinCluster(self.mesh)
         deformerSkinClust = getData().get_skinCluster(self.deformer)
 
-        if len(deformerSkinClust))==0: # error if no skin
+        if len(deformerSkinClust)==0: # error if no skin
             print (pm.error( "<<<<<(no skin on deformer)>>>>>" ))
 
         if deformerSkinClust[0] in meshSkinClust: # reomve if same skincluster in mesh
@@ -342,7 +350,25 @@ class deformerConvert(getData):
         #get influnced joints of the mesh
         mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
 
-        #TODO 
+        #get effected verticies
+        self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
+
+        #bind all deformer jnt to mesh
+        cmds.skinCluster(self.mesh, ai=mesh_joints, edit=True,lw = 1)
+
+        #Add other joints to skin cluster
+        pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True,lw = 1)
+
+        for xx in self.inf_jnts:
+        
+        
+            Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
+            
+            WeightbyPercent = getData().WeightByOnePercentage(Fineldistance, self.hold_skin_value)
+
+
+        #TODO curve script not working with unlock a joint(solve it)
+        #TODO do we need "mesh_joints"
         # just to remind myself:- self.variable bnane h har jgha
             
 

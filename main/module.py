@@ -127,6 +127,22 @@ class getData:
 
         return vertNumb
     
+    
+    def unlockJnd(self, mesh_joinds ):
+
+        unlockJnd = []
+        for n in mesh_joinds:
+            findlock = pm.getAttr(n+'.liw')
+            if findlock == False:
+                unlockJnd.append(n)
+        
+        if unlockJnd == []:
+            pm.error( "Please unlock one joint" )
+        
+        if len(unlockJnd) > 1:
+            pm.error( "Only one joint should be unlocked" )
+
+        return unlockJnd
 
 
         #---------------------------------------------------Distance between two vertex
@@ -249,18 +265,8 @@ class deformerConvert(getData):
 
 
         #get unlocked joint to transfer deformer weight
-        unlockJnt = []
-        for n in mesh_joints:
-            findlock = pm.getAttr(n+'.liw')
-            if findlock == False:
-                unlockJnt.append(n)
+        unlockJnt = getData().unlockJnd(mesh_joints)
         
-        if unlockJnt == []:
-            pm.error( "Please unlock one joint" )
-        
-        if len(unlockJnt) > 1:
-            pm.error( "Only one joint should be unlocked" )
-            
             
         #lock all other weights except the first unlocked weight
         pm.setAttr(unlockJnt[0]+'.liw', 1)
@@ -324,8 +330,15 @@ class deformerConvert(getData):
 
         deformerTyp =getData().deformerType(self.mesh) # to check type of deformer and set wire rotation 1
 
-        meshSkinClust = getData().get_skinCluster(self.mesh)
-        deformerSkinClust = getData().get_skinCluster(self.deformer)
+        meshSkinClust = getData(object = self.mesh).get_skinCluster()
+
+        deformerSkinClust = getData(object = self.deformer).get_skinCluster()
+
+        print(deformerSkinClust)
+        print(len(deformerSkinClust))
+        exit()
+
+
 
         if len(deformerSkinClust)==0: # error if no skin
             print (pm.error( "<<<<<(no skin on deformer)>>>>>" ))
@@ -350,6 +363,9 @@ class deformerConvert(getData):
         #get influnced joints of the mesh
         mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
 
+        #get unlocked joint to transfer deformer weight
+        unlockJnt = getData().unlockJnd(mesh_joints)
+
         #get effected verticies
         self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
 
@@ -363,12 +379,29 @@ class deformerConvert(getData):
         
         
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
-            
-            WeightbyPercent = getData().WeightByOnePercentage(Fineldistance, self.hold_skin_value)
 
+            #---------------------------------------------------skin apply
+
+            cmds.setAttr(unlockJnt[0]+'.liw', 0)
+            for R in self.vertNumber:
+                
+                if Fineldistance[self.vertNumber.index(R)] != 0.0:
+        
+                    pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, Fineldistance[self.vertNumber.index(R)]))
+
+        
+
+        for fv in self.inf_jnts:
+            pm.setAttr(fv+'.liw', 0)
+        
+        pm.skinCluster(self.meshCluster, e = True, ri= unlockJnt[0])
+        #---------------------------------------------------delete_Unwanted_Things
+        if self.meshCluster == []:
+            pm.delete(unlockJnt[0])
 
         #TODO curve script not working with unlock a joint(solve it)
         #TODO do we need "mesh_joints"
+        #TODO 343 line not giving len  = 1 or 0       ?????
         # just to remind myself:- self.variable bnane h har jgha
             
 

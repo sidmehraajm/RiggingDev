@@ -334,17 +334,18 @@ class deformerConvert(getData):
 
         deformerSkinClust = getData(object = self.deformer).get_skinCluster()
 
-        print(deformerSkinClust)
-        print(len(deformerSkinClust))
-        exit()
 
-
-
-        if len(deformerSkinClust)==0: # error if no skin
+        if not deformerSkinClust: # error if no skin
             print (pm.error( "<<<<<(no skin on deformer)>>>>>" ))
 
-        if deformerSkinClust[0] in meshSkinClust: # reomve if same skincluster in mesh
-            meshSkinClust.remove(deformerSkinClust[0])
+
+        if str(deformerSkinClust) in str(meshSkinClust): # reomve if same skincluster in mesh
+            meshSkinClust.remove(deformerSkinClust)
+
+            print(meshSkinClust)
+
+        exit()
+
 
 
 

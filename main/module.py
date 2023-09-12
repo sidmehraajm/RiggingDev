@@ -115,15 +115,10 @@ class getData:
     def effectedVertNumber(self, meshClust, unlockJt):
         vertNumb =[]
 
-        if meshClust:
-            pm.skinCluster(meshClust, e=True, siv = unlockJt)
-            effectdVrt0 = cmds.ls(sl=True, fl =1 )
-            vertNumb = getData().solvVert(effectdVrt0)
-
-        else:
-            polyCo = cmds.polyEvaluate(self.mesh, v=True )
-            for i in range(polyCo):
-                vertNumb.append(str(i))
+        pm.skinCluster(meshClust, e=True, siv = unlockJt)
+        effectdVrt0 = cmds.ls(sl=True, fl =1 )
+        vertNumb = getData().solvVert(effectdVrt0)
+        cmds.select(d =1)
 
         return vertNumb
     
@@ -330,7 +325,7 @@ class deformerConvert(getData):
 
         deformerTyp =getData().deformerType(self.mesh) # to check type of deformer and set wire rotation 1
 
-        meshSkinClust = getData(object = self.mesh).get_skinCluster()
+        meshSkinClust = [getData(object = self.mesh).get_skinCluster()]
 
         deformerSkinClust = getData(object = self.deformer).get_skinCluster()
 
@@ -338,18 +333,8 @@ class deformerConvert(getData):
         if not deformerSkinClust: # error if no skin
             print (pm.error( "<<<<<(no skin on deformer)>>>>>" ))
 
-
-        if str(deformerSkinClust) in str(meshSkinClust): # reomve if same skincluster in mesh
+        if deformerSkinClust in meshSkinClust: # reomve if same skincluster in mesh
             meshSkinClust.remove(deformerSkinClust)
-
-            print(meshSkinClust)
-
-        exit()
-
-
-
-
-
 
 
         #check if there is a cluster else create a new one
@@ -360,49 +345,44 @@ class deformerConvert(getData):
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl= 1)
 
-
         #get influnced joints of the mesh
         mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
 
-        #get unlocked joint to transfer deformer weight
-        unlockJnt = getData().unlockJnd(mesh_joints)
-
         #get effected verticies
-        self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
-
-        #bind all deformer jnt to mesh
-        cmds.skinCluster(self.mesh, ai=mesh_joints, edit=True,lw = 1)
-
+        self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True ))]
+        
+        
+        print(self.meshCluster)
+        print(self.inf_jnts)
         #Add other joints to skin cluster
-        pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True,lw = 1)
+
+        exit()
+        pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True,lw = 1, wt = 0)
+
+
+
+
 
         for xx in self.inf_jnts:
         
-        
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
 
-            #---------------------------------------------------skin apply
-
-            cmds.setAttr(unlockJnt[0]+'.liw', 0)
+            print(xx)
+            print(Fineldistance)
+        
+            #skin apply
             for R in self.vertNumber:
                 
                 if Fineldistance[self.vertNumber.index(R)] != 0.0:
         
                     pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, Fineldistance[self.vertNumber.index(R)]))
 
-        
-
         for fv in self.inf_jnts:
             pm.setAttr(fv+'.liw', 0)
         
-        pm.skinCluster(self.meshCluster, e = True, ri= unlockJnt[0])
         #---------------------------------------------------delete_Unwanted_Things
-        if self.meshCluster == []:
-            pm.delete(unlockJnt[0])
 
         #TODO curve script not working with unlock a joint(solve it)
-        #TODO do we need "mesh_joints"
-        #TODO 343 line not giving len  = 1 or 0       ?????
+        #TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha
             
-

@@ -1,9 +1,6 @@
-import time
-import maya.OpenMaya as om
-import pymel.core as pm
-import maya.cmds as cmds
-import math
-import sys
+import maya.OpenMaya as om, pymel.core as pm, maya.cmds as cmds
+import time, math, sys
+
 '''
 
 ui
@@ -20,64 +17,73 @@ mirror deformer weight
 
 
 
+class utils:
+    def __init__(self, object = None):
+        self.obj = object
+    # one defination for all
+    def WhichDeformerButton(self,ddeformer):
+        
+        if ddeformer == 'Wire':
+            print ('Converting wire deformer to skin')
+            
+        if ddeformer == 'Lattice':
+            print ('Converting Lattice deformer to skin')
+            
+        if ddeformer == 'Wrap':
+            print ('Converting Wrap deformer to skin')
+            
+        if ddeformer == 'Cluster':
+            print ('Converting Cluster deformer to skin')
+            
+        if ddeformer == 'SoftSelection':
+            print ('Converting SoftSelection deformer to skin')
+            
+        if ddeformer == 'DeltaMesh':
+            print ('Converting DeltaMesh deformer to skin')
+            
 
-# one defination for all
-def WhichDeformerButton(ddeformer):
-    
-    if ddeformer == 'Wire':
-        print ('Wire')
-        
-    if ddeformer == 'Lattice':
-        print ('Lattice')
-        
-    if ddeformer == 'Wrap':
-        print ('Wrap')
-        
-    if ddeformer == 'Cluster':
-        print ('Cluster')
-        
-    if ddeformer == 'SoftSelection':
-        print ('SoftSelection')
-        
-    if ddeformer == 'DeltaMesh':
-        print ('DeltaMesh')
-        
+    def CreateCrv(self):
+        cmds.curve( p=[cmds.xform(d, t =1, q =1, ws =1) for d in cmds.ls(sl=1)])
 
-def CreateCrv():
-    cmds.curve( p=[cmds.xform(d, t =1, q =1, ws =1) for d in cmds.ls(sl=1)])
-
-def softSelection():
-    selection = om.MSelectionList()
-    softSelection = om.MRichSelection()
-    om.MGlobal.getRichSelection(softSelection)
-    softSelection.getSelection(selection)
-    
-    dagPath = om.MDagPath()
-    component = om.MObject()
-    
-    iter = om.MItSelectionList( selection,om.MFn.kMeshVertComponent )
-    elements = []
-    while not iter.isDone(): 
-        iter.getDagPath( dagPath, component )
-        dagPath.pop()
-        node = dagPath.fullPathName()
-        fnComp = om.MFnSingleIndexedComponent(component)   
+    def softSelection(self):
+        selection = om.MSelectionList()
+        softSelection = om.MRichSelection()
+        om.MGlobal.getRichSelection(softSelection)
+        softSelection.getSelection(selection)
         
-        for i in range(fnComp.elementCount()):
-            elements.append([node, fnComp.element(i), fnComp.weight(i).influence()] )
-        iter.next()
-    return elements
+        dagPath = om.MDagPath()
+        component = om.MObject()
+        
+        iter = om.MItSelectionList( selection,om.MFn.kMeshVertComponent )
+        elements = []
+        while not iter.isDone(): 
+            iter.getDagPath( dagPath, component )
+            dagPath.pop()
+            node = dagPath.fullPathName()
+            fnComp = om.MFnSingleIndexedComponent(component)   
+            
+            for i in range(fnComp.elementCount()):
+                elements.append([node, fnComp.element(i), fnComp.weight(i).influence()] )
+            iter.next()
+        return elements
 
 
 class getData:
     '''
-    TODO write doc
+    A class for extracting information and performing calculations related to deformations.
     '''
 
     def __init__(self, object = None):
         self.obj = object
     
     def get_skinCluster(self):
+        '''
+        Get the skinCluster associated with the object.
+
+        Returns:
+            skinCluster (str or None): The name of the skinCluster or None if not found.
+
+        '''
         pyObj = pm.PyNode(self.obj)
         try:
             self.skn = pm.ls(pm.listHistory(pyObj),typ = 'skinCluster')[0]
@@ -87,7 +93,16 @@ class getData:
             return None
             
     def get_influnced_joints(self,skin_node = None):
+        '''
+        Get the list of influenced joints by a given skinCluster.
 
+        Args:
+            skin_node (str): The name of the skinCluster. 
+
+        Returns:
+            influences (list or None): A list of influenced joint names or None if not found.
+
+        '''
         try:
             self.influences = pm.skinCluster(skin_node, inf = True, q = True)
             return self.influences
@@ -97,7 +112,16 @@ class getData:
             pass
         
     def solvVert(self,vertcnt):
-        
+        '''
+        Extract vertex numbers from vertex count strings.
+
+        Args:
+            vertcnt (list): List of vertex count strings.
+
+        Returns:
+            totalCounts (list): List of extracted vertex numbers as strings.
+
+        '''   
         totalCounts = []
         
         for vert in vertcnt:
@@ -113,6 +137,17 @@ class getData:
     
     
     def effectedVertNumber(self, meshClust, unlockJt):
+        '''
+        Calculate the affected vertex numbers when a joint is unlocked in a skinCluster.
+
+        Args:
+            meshClust (str): The name of the skinCluster.
+            unlockJt (str): The name of the joint to be unlocked.
+
+        Returns:
+            vertNumb (list): List of affected vertex numbers as strings.
+
+        '''        
         vertNumb =[]
 
         pm.skinCluster(meshClust, e=True, siv = unlockJt)
@@ -123,8 +158,20 @@ class getData:
         return vertNumb
     
     
-    def unlockJnd(self, mesh_joinds ):
+    def getUnlockedJnt(self, mesh_joinds ):
+        '''
+        Find and return joints that are unlocked among a list of joints.
 
+        Args:
+            mesh_joints (list): List of joint names to check.
+
+        Returns:
+            unlockJnd (list): List of unlocked joint names.
+
+        Raises:
+            pm.error: If no joint is unlocked or if more than one joint is unlocked.
+
+        '''
         unlockJnd = []
         for n in mesh_joinds:
             findlock = pm.getAttr(n+'.liw')
@@ -132,7 +179,7 @@ class getData:
                 unlockJnd.append(n)
         
         if unlockJnd == []:
-            pm.error( "Please unlock one joint" )
+            pm.error( "Please unlock one joint for distributing the weight" )
         
         if len(unlockJnd) > 1:
             pm.error( "Only one joint should be unlocked" )
@@ -142,7 +189,18 @@ class getData:
 
         #---------------------------------------------------Distance between two vertex
     def VertDistance(self, meshNam, VertNumList, moverNam ):
-        
+        '''
+        Calculate the distances between two sets of vertices on a mesh.
+
+        Args:
+            mesh_name (str): The name of the mesh.
+            vert_num_list (list): List of vertex numbers as strings.
+            mover_name (str): The name of the mover object.
+
+        Returns:
+            Distance (list): List of distances between vertices.
+
+        '''
         old_PoseVert = []
         New_PoseVert = []
         Distance= []
@@ -190,7 +248,17 @@ class getData:
 
         #---------------------------------------------------percentage_find
     def WeightByOnePercentage(self, distance, hold_skin ):
-        
+        '''
+        Calculate weight values based on distances and skinCluster weights.
+
+        Args:
+            distance (list): List of distances between vertices.
+            hold_skin (list): List of skinCluster weights.
+
+        Returns:
+            percentage (list): List of weight values.
+
+        '''
         percentage = []
 
         for nnn in range(len(hold_skin)):
@@ -202,20 +270,30 @@ class getData:
 
     #--------------------------------------------------- check deformer Type
     def deformerType(self, Name):
+        '''
+        Identify and return the type of deformer applied to an object.
+
+        Args:
+            name (str): The name of the object.
+
+        Returns:
+            deformer_type (str): The type of deformer (e.g., 'wire', 'lattice', 'cluster', 'wrap', 'blendShape').
+
+        '''
         nodes = []
 
-        for damn in cmds.listHistory(Name):
+        for dfm in cmds.listHistory(Name):
             
-            if cmds.nodeType(damn) == 'wire':
-                pm.setAttr(damn+".rotation", 0.0)
+            if cmds.nodeType(dfm) == 'wire':
+                pm.setAttr(dfm+".rotation", 0.0)
                 nodes.append('wire')
-            if cmds.nodeType(damn) == 'lattice':
+            if cmds.nodeType(dfm) == 'lattice':
                 nodes.append('lattice')
-            if cmds.nodeType(damn) == 'cluster':
+            if cmds.nodeType(dfm) == 'cluster':
                 nodes.append('cluster')
-            if cmds.nodeType(damn) == 'wrap':
+            if cmds.nodeType(dfm) == 'wrap':
                 nodes.append('wrap')
-            if cmds.nodeType(damn) == 'blendShape':
+            if cmds.nodeType(dfm) == 'blendShape':
                 nodes.append('blendShape')
                 
         return nodes[0]
@@ -224,7 +302,21 @@ class getData:
 
 class deformerConvert(getData):
     '''
-    TODO write doc
+    Main class for converting deformers to skincluster.
+
+    Args:
+        deformer (str, optional): The name of the deformer to be converted.
+        mesh (str, optional): The name of the mesh to be processed.
+
+    Attributes:
+        deformer (str): The name of the deformer being converted.
+        mesh (str): The name of the mesh being processed.
+        hold_joint (str or None): The name of the hold joint created or None.
+        meshCluster (str or None): The name of the mesh's skinCluster or None.
+        vertNumber (list): List of vertex numbers as strings.
+        hold_skin_value (list): List of hold joint's skin weights.
+        inf_jnts (list): List of influenced joint names from the deformer.
+
     '''
 
     def __init__(self, deformer = None, mesh = None):
@@ -240,11 +332,12 @@ class deformerConvert(getData):
 
     def deformer_skin_convert(self):
         '''
-        TODO write doc
+        Convert skin weights from the deformer to the mesh.
+
         '''
+
         #get mesh skin cluster
         self.meshCluster = getData(object = self.mesh).get_skinCluster()
-        
 
         #check if there is a cluster else create a new one
         if self.meshCluster == None:
@@ -254,14 +347,11 @@ class deformerConvert(getData):
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl= 1)
 
-
         #get influnced joints of the mesh
         mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
 
-
         #get unlocked joint to transfer deformer weight
-        unlockJnt = getData().unlockJnd(mesh_joints)
-        
+        unlockJnt = getData().getUnlockedJnt(mesh_joints)
             
         #lock all other weights except the first unlocked weight
         pm.setAttr(unlockJnt[0]+'.liw', 1)
@@ -269,9 +359,7 @@ class deformerConvert(getData):
         #get effected verticies
         self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
 
-
         #save hold joint's weight
-
         for fdf in self.vertNumber:
             JntVal = pm.skinPercent(str(self.meshCluster), self.mesh+'.vtx['+fdf+']' , transform = unlockJnt[0], query=True )
             self.hold_skin_value.append(JntVal)
@@ -284,36 +372,24 @@ class deformerConvert(getData):
         wireDfm = pm.wire( self.mesh, w= self.deformer, gw = False, en= 1.000000, ce= 0.000000, li= 0.000000, dds=[(0, 1000)] )[0]
         pm.setAttr(wireDfm.rotation, 0)
         
-        #------------------------------------------------------
-        
         for xx in self.inf_jnts:
         
-            '''
-            TODO 
-            
-            '''
-        
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
-            
             WeightbyPercent = getData().WeightByOnePercentage(Fineldistance, self.hold_skin_value)
 
-
-            #---------------------------------------------------skin apply
-
+            #apply skin weight
             cmds.setAttr(unlockJnt[0]+'.liw', 0)
             for R in self.vertNumber:
-                
                 if WeightbyPercent[self.vertNumber.index(R)] != 0.0:
-        
                     pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, WeightbyPercent[self.vertNumber.index(R)]))
-
         
 
         for fv in self.inf_jnts:
             pm.setAttr(fv+'.liw', 0)
         
         pm.skinCluster(self.meshCluster, e = True, ri= unlockJnt[0])
-        #---------------------------------------------------delete_Unwanted_Things
+
+        #cleanup
         if self.meshCluster == []:
             pm.delete(unlockJnt[0])
         pm.delete(wireDfm)
@@ -322,6 +398,10 @@ class deformerConvert(getData):
         
 
     def rest_deformer_skin_convert(self):
+        '''
+        Restore the original skin weights on the mesh after deformer conversion.
+
+        '''
 
         deformerTyp =getData().deformerType(self.mesh) # to check type of deformer and set wire rotation 1
 
@@ -329,9 +409,8 @@ class deformerConvert(getData):
 
         deformerSkinClust = getData(object = self.deformer).get_skinCluster()
 
-
         if not deformerSkinClust: # error if no skin
-            print (pm.error( "<<<<<(no skin on deformer)>>>>>" ))
+            pm.error( "<<<<<(No SKIN found on deformer)>>>>>" )
 
         if deformerSkinClust in meshSkinClust: # reomve if same skincluster in mesh
             meshSkinClust.remove(deformerSkinClust)
@@ -352,8 +431,8 @@ class deformerConvert(getData):
         self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True ))]
         
         
-        print(self.meshCluster)
-        print(self.inf_jnts)
+        #print(self.meshCluster)
+        #print(self.inf_jnts)
         #Add other joints to skin cluster
 
         exit()

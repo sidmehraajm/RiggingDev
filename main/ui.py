@@ -63,13 +63,13 @@ pm.formLayout(deformer_form,e=1,
 	
 	])
 
-skinCLusterName = pm.scrollField('skn_cl_name', w = 150 , h=30 ,p = skin_utils_form,bgc = [(.17),(.18),(.19)],editable=True, wordWrap=False,)
-rename_skn = pm.button('rename_skn',l = 'Rename SkinC',p = skin_utils_form,w = 90,h=30, bgc = [(.2),(.2),(.2)],en = 1)
-rename_skn = pm.button('rename_skn',l = 'Rename SkinC',p = skin_utils_form,w = 90,h=30, bgc = [(.2),(.2),(.2)],en = 1)
+skinCLusterName = pm.scrollField('skn_cl_name', w = 300 , h=30 ,p = skin_utils_form,bgc = [(.17),(.18),(.19)],editable=True, wordWrap=False,)
+selc_mesh_btn = pm.button('select_mesh',l = '1. Select Mesh',p = skin_utils_form,w = 150,h=30, bgc = [(.2),(.2),(.2)],en = 1)
+rename_skn_btn = pm.button('rename_skn',l = '2. Rename SkinC',p = skin_utils_form,w = 150,h=30, bgc = [(.2),(.2),(.2)],en = 1)
 
 path_textfield = pm.textField('df_field', w = 180 , h=41 ,pht = 'Add Deformer',p = skin_utils_form,bgc = [(.17),(.18),(.19)])
 
-selectPath_button = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Deformer',p = skin_utils_form,w = 120,h=40, bgc = [(.2),(.2),(.2)],en = 1)
+selectPath_button = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select path',p = skin_utils_form,w = 120,h=40, bgc = [(.2),(.2),(.2)],en = 1)
 
 import_skn_button = pm.iconTextButton('imp_skn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Import Deformer',p = skin_utils_form,w = 150,h=40, bgc = [(.2),(.2),(.2)],en = 1)
 export_skn_button = pm.iconTextButton('exp_skn ',style='iconAndTextHorizontal',image1='addClip.png',l = 'Export Deformer',p = skin_utils_form,w = 150,h=40, bgc = [(.2),(.2),(.2)],en = 1)
@@ -77,18 +77,19 @@ export_skn_button = pm.iconTextButton('exp_skn ',style='iconAndTextHorizontal',i
 pm.formLayout(skin_utils_form,e=1,
 	attachForm = [
 	(skinCLusterName,'top',10),
-	(rename_skn,'top',10),
-	(import_skn_button,'top',100),
-	(export_skn_button,'top',100),
-
-	(path_textfield,'top',50),
-	(selectPath_button,'top',50),	
+	(selc_mesh_btn,'top',45),
+	(rename_skn_btn,'top',45),
+	(import_skn_button,'top',125),
+	(export_skn_button,'top',125),
+	(path_textfield,'top',80),
+	(selectPath_button,'top',80),	
 
 	(path_textfield,'left',10),
 	(skinCLusterName,'left',10),
-	(import_skn_button,'left',10),
-
-	(rename_skn,'right',10),
+	(import_skn_button,'left',11),	
+	(selc_mesh_btn,'left',11),
+	
+	(rename_skn_btn,'right',11),
 	(selectPath_button,'right',10),
 	(export_skn_button,'right',10),
 	

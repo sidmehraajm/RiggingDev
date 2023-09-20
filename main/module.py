@@ -435,7 +435,6 @@ class deformerConvert(getData):
         #print(self.inf_jnts)
         #Add other joints to skin cluster
 
-        exit()
         pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True,lw = 1, wt = 0)
 
 
@@ -461,6 +460,25 @@ class deformerConvert(getData):
         
         #---------------------------------------------------delete_Unwanted_Things
 
+
+    def SoftSelectionToConvert(self):
+
+        selection0 = cmds.ls(sl=True)
+        selecti_00 = selection0[0]
+        cmds.cluster(n = 'VishClust')
+
+        shapename = cmds.listHistory(selecti_00)[0]
+        positon = cmds.getAttr("VishClustHandleShape.origin")[0]
+        cmds.delete('VishClust')
+
+        cmds.select(shapename)
+        cmds.pickWalk(d = 'up')
+
+        transName = cmds.ls(sl=True)
+        print(transName)
+
+        cmds.select(d =True)
+        
         #TODO curve script not working with unlock a joint(solve it)
         #TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha

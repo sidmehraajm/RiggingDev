@@ -1,3 +1,12 @@
+import maya.cmds as cmds
+import pymel.core as pm
+import importlib
+import pymel.core as pm
+import maya.cmds as cmds, pymel.core as pm, sys, importlib as imp
+sys.path.append('/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main')
+import module as m
+imp.reload(m)
+
 import pymel.core as pm
 win_name = 'vn_skin_tools'
 win_title = 'Skin Tools'
@@ -98,4 +107,60 @@ pm.formLayout(skin_utils_form,e=1,
 
 
 pm.showWindow(win_name)
+
+class con_to_skn:
+    def __init__(self):
+        self.msh = None
+        self.defr = None
+        
+    def add_mesh(self):
+        try:
+            self.msh = str(pm.ls(sl=1)[0])
+            pm.textField('mesh_field', e=1,tx=self.msh)
+            return self.msh
+            
+        except:
+            pm.error('Please select a Mesh')
+            
+        
+            
+    def add_deformer(self):
+        try:
+            self.defr = str(pm.ls(sl=1)[0])
+            pm.textField('df_field', e=1,tx=self.defr)
+            print(self.defr)
+            return self.defr
+            
+        except:
+            pm.error('Please select a Mesh')
+            
+        
+        
+        #do we need a condition to see like if the right deformer is selected
+
+    
+    def convert_to_skin(self):
+        print(self.defr,self.msh)
+        dam  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
+        
+a = con_to_skn()
+c = a.add_mesh()
+a.add_deformer()
+a.convert_to_skin()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -463,23 +463,18 @@ class deformerConvert(getData):
 
     def SoftSelectionToConvert(self):
 
-        selection0 = cmds.ls(sl=True)
-        selecti_00 = selection0[0]
-        cmds.cluster(n = 'VishClust')
+        Sel = cmds.ls(sl=True)
+        shapename = cmds.listHistory(Sel[0])[0]
 
-        shapename = cmds.listHistory(selecti_00)[0]
-        positon = cmds.getAttr("VishClustHandleShape.origin")[0]
-        cmds.delete('VishClust')
+        dam = cmds.cluster(n='VishClust')
+        positon = cmds.getAttr(f'{dam[0]}HandleShape.origin')[0]
 
-        cmds.select(shapename)
-        cmds.pickWalk(d = 'up')
+        transName = cmds.listRelatives(cmds.ls(sl=True), shapes=True)
 
-        transName = cmds.ls(sl=True)
-        print(transName)
-
-        cmds.select(d =True)
+        print(Sel, shapename, positon, transName)
         
         #TODO curve script not working with unlock a joint(solve it)
         #TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha
+        # TODO you can call function with self.functionName also, but it should be inside the same class
             

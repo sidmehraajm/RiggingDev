@@ -334,6 +334,8 @@ class deformerConvert(getData):
         '''
         Convert skin weights from the deformer to the mesh.
 
+        Use For Curve to Skin
+
         '''
 
         #get mesh skin cluster
@@ -400,6 +402,8 @@ class deformerConvert(getData):
     def rest_deformer_skin_convert(self):
         '''
         Restore the original skin weights on the mesh after deformer conversion.
+
+        Use for Wire, Wrap, delta Mesh and Lattice
 
         '''
 
@@ -473,6 +477,8 @@ class deformerConvert(getData):
 
         print(Sel, shapename, positon, transName)
         
+
+        #TODO Cluster and Blendshape Function need to be added
         #TODO curve script not working with unlock a joint(solve it)
         #TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha

@@ -18,7 +18,7 @@ if(pm.window(win_name,q=1, exists=True)):
 if pm.windowPref(win_name,q=1 ,exists=True ):
    pm.windowPref(win_name, r=0 )
 '''
-pm.window(win_name, title=win_title, widthHeight=win_size, sizeable=False)
+pm.window(win_name, title=win_title, widthHeight=win_size, sizeable=False,bgc = [(.2),(.2),(.2)])
 
 Tab = pm.tabLayout('Tabs',p=win_name,tc =0,stb=1,snt=1)
 
@@ -27,38 +27,43 @@ skin_utils_form = pm.formLayout('Import/Export',parent='Tabs')
 output_win_frame = pm.formLayout('MirrorWeights',parent='Tabs')
           
 
-radio_layout = pm.rowColumnLayout(nc =2,p = deformer_form,cal =[2,'center'], h = 50)
+radio_layout = pm.rowColumnLayout(nc =2,p = deformer_form,cal =[2,'left'], h = 55)
 radio_coll = pm.radioCollection( parent=radio_layout )
-crv_to_skn_btn = pm.radioButton(l = 'Curve To Skin', p = radio_layout,sl =1)
-wire_to_skn_btn= pm.radioButton(l = 'Wire To Skin', p = radio_layout,al ='center')
-softsel_to_skn = pm.radioButton(l = 'Soft Selection To Skin', p = radio_layout)
-lat_to_skn_btn = pm.radioButton(l = 'Lattice To Skin', p = radio_layout)
-wrap_to_skn = pm.radioButton(l = 'Wrap To Skin', p = radio_layout)
-blendshape_to_skn = pm.radioButton(l = 'Blendshape To Skin', p = radio_layout)
-cluster_to_skn = pm.radioButton(l = 'Cluster To Skin', p = radio_layout)
+crv_to_skn_btn = pm.radioButton(l = 'Curve To Skin', p = radio_layout,sl =1,cc = 'crv_skn_cc()')
+softsel_to_skn = pm.radioButton(l = 'Soft Selection To Skin', p = radio_layout,cc = 'softSel_skn_cc()')
+cluster_to_skn = pm.radioButton(l = 'Cluster To Skin', p = radio_layout,cc = 'cl_skn_cc()')
+df_to_skn_btn = pm.radioButton(l = 'Wire/Wrap/Lattice/DeltaMush', p = radio_layout,cc = 'df_skn_cc()')
 
-mesh_textfield = pm.textField('mesh_field', w = 180 , h=42 ,pht = 'Add Mesh',p = deformer_form,bgc = [(.17),(.18),(.19)])
-deformer_textfield = pm.textField('df_field', w = 180 , h=41 ,pht = 'Add Deformer',p = deformer_form,bgc = [(.17),(.18),(.19)])
+blendshape_to_skn = pm.radioButton(l = 'Blendshape To Skin', p = radio_layout)
+
+informatipn_txt_f = pm.textField('info_txtf', w = 180 , h=25 ,p = deformer_form,en =0, pht ='Add a Skinned Curve and Mesh',nbg =1)
+
+mesh_textfield = pm.textField('mesh_field', w = 180 , h=35 ,pht = 'Add Mesh',p = deformer_form)
+deformer_textfield = pm.textField('df_field', w = 180 , h=35 ,pht = 'Add Skinned Curve',p = deformer_form)
 
 override_checkbox = pm.checkBox( label='Override Skin Cluster', align='left', p = deformer_form )
 unlocedvtx_checkbox = pm.checkBox( label='Unlocked Influneces Only', align='center', p = deformer_form )
 
 
-add_mesh_btn = pm.iconTextButton('mesh_btn',style='iconAndTextHorizontal',image1='addClip.png',l = '   Select Mesh',p = deformer_form,w = 120,h=40, bgc = [(.2),(.2),(.2)],en = 1)
-add_df_btn = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select Deformer',p = deformer_form,w = 120,h=40, bgc = [(.2),(.2),(.2)],en = 1)
-convert_btn = pm.iconTextButton('cvt_btn',style='iconAndTextHorizontal', image1='polyColorSetEditor.png', label='Convert to Skin',p = deformer_form,w=130,h=40, bgc = [(.4),(.43),(.45)])
+add_mesh_btn = pm.button('mesh_btn',l = 'Select Mesh',p = deformer_form,w = 120,h=34,  c = 'mesh_add()')
+add_df_btn = pm.button('df_btn',l = 'Select Deformer',p = deformer_form,w = 120,h=34, c = 'deformer_add()')
+convert_btn = pm.iconTextButton('cvt_btn',style='iconAndTextHorizontal', image1='polyColorSetEditor.png', label='Convert to Skin',p = deformer_form,w=130,h=40, bgc = [(.23),(.23),(.253)], c = 'convert_to_skin()')
 
 pm.formLayout(deformer_form,e=1,
 	attachForm = [
 
-	(radio_layout,'top',15),
-	(mesh_textfield,'top',85),
-	(deformer_textfield,'top',130),
-	(add_mesh_btn,'top',86),
-	(add_df_btn,'top',131),
+	(radio_layout,'top',10),
+	(informatipn_txt_f,'top',67),
+	
+	(mesh_textfield,'top',97),
+	(deformer_textfield,'top',135),
+	(add_mesh_btn,'top',98),
+	(add_df_btn,'top',136),
 	(override_checkbox,'top',180),
 	(unlocedvtx_checkbox,'top',200),	
 	(convert_btn,'top',228),
+
+	(informatipn_txt_f,'left',10),	
 
 	(radio_layout,'left',10),	
 	(mesh_textfield,'left',10),
@@ -67,6 +72,8 @@ pm.formLayout(deformer_form,e=1,
 	(unlocedvtx_checkbox,'left',11),
 	(convert_btn,'left',95),
 
+
+	(informatipn_txt_f,'right',10),	
 	(add_mesh_btn,'right',10),
 	(add_df_btn,'right',10),
 	
@@ -77,7 +84,6 @@ selc_mesh_btn = pm.button('select_mesh',l = '1. Select Mesh',p = skin_utils_form
 rename_skn_btn = pm.button('rename_skn',l = '2. Rename SkinC',p = skin_utils_form,w = 150,h=30, bgc = [(.2),(.2),(.2)],en = 1)
 
 path_textfield = pm.textField('df_field', w = 180 , h=41 ,pht = 'Add Deformer',p = skin_utils_form,bgc = [(.17),(.18),(.19)])
-
 selectPath_button = pm.iconTextButton('df_btn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Select path',p = skin_utils_form,w = 120,h=40, bgc = [(.2),(.2),(.2)],en = 1)
 
 import_skn_button = pm.iconTextButton('imp_skn',style='iconAndTextHorizontal',image1='addClip.png',l = 'Import Deformer',p = skin_utils_form,w = 150,h=40, bgc = [(.2),(.2),(.2)],en = 1)
@@ -132,7 +138,7 @@ class con_to_skn:
             return self.defr
             
         except:
-            pm.error('Please select a Mesh')
+            pm.error('Please select a Deformer')
             
         
         
@@ -141,20 +147,57 @@ class con_to_skn:
     
     def convert_to_skin(self):
         print(self.defr,self.msh)
-        dam  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
-        
-a = con_to_skn()
-c = a.add_mesh()
-a.add_deformer()
-a.convert_to_skin()
+        dc  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
+        dc.deformer_skin_convert()
 
 
 
+con = con_to_skn()
+
+def mesh_add():
+    c = con.add_mesh()
+    
+def deformer_add():     
+    c = con.add_deformer()
+    
+def convert_to_skin():
+    c = con.convert_to_skin()   
+    '''
+    c = con.SoftSelectionToConvert()  
+      
+    c = con.rest_deformer_skin_convert()    
+    '''           
+
+# change commands
+
+def crv_skn_cc():
+    pm.button(add_mesh_btn,e=1,en = 1)
+    pm.button(add_df_btn,e=1,en = 1)
+    pm.textField(mesh_textfield,e=1,en = 1, pht ='Add Mesh')
+    pm.textField(deformer_textfield,e=1,en = 1, pht ='Add Skinned Curve')
+    pm.textField(informatipn_txt_f, e = 1,ed=0, nbg=1,pht ='Add a Skinned Curve and Mesh')
+
+def softSel_skn_cc():
+    pm.button(add_mesh_btn,e=1,en = 0)
+    pm.button(add_df_btn,e=1,en = 0)
+    pm.textField(mesh_textfield,e=1,en = 0, pht =' ')
+    pm.textField(deformer_textfield,e=1,en = 0, pht =' ')
+    pm.textField(informatipn_txt_f, e = 1,ed=0, nbg=1,pht ='Select Verticies/Face with soft selection')
+    
+def cl_skn_cc():
+    pm.button(add_mesh_btn,e=1,en = 1)
+    pm.button(add_df_btn,e=1,en = 1)
+    pm.textField(mesh_textfield,e=1,en = 1, pht ='Add Mesh')
+    pm.textField(deformer_textfield,e=1,en = 1, pht ='Add Cluster')
+    pm.textField(informatipn_txt_f, e = 1,ed=0, nbg=1,pht ='Add a Cluster and Mesh')
 
 
-
-
-
+def df_skn_cc():
+    pm.button(add_mesh_btn,e=1,en = 1)
+    pm.button(add_df_btn,e=1,en = 1)
+    pm.textField(mesh_textfield,e=1,en = 1, pht ='Add Mesh')
+    pm.textField(deformer_textfield,e=1,en = 1, pht ='Add Deformer')
+    pm.textField(informatipn_txt_f, e = 1,ed=0, nbg=1,pht ='Add Wire/Wrap/Lattice/DeltaMush and a Mesh')
 
 
 

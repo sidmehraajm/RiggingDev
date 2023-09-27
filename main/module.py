@@ -467,15 +467,26 @@ class deformerConvert(getData):
 
     def SoftSelectionToConvert(self):
 
-        Sel = cmds.ls(sl=True)
-        shapename = cmds.listHistory(Sel[0])[0]
+        sel = cmds.ls(sl=True)
+        cmds.select(d =1)
 
-        dam = cmds.cluster(n='VishClust')
-        positon = cmds.getAttr(f'{dam[0]}HandleShape.origin')[0]
+        bbx = cmds.xform(sel, q=True, bb=True, ws=True)
 
-        transName = cmds.listRelatives(cmds.ls(sl=True), shapes=True)
+        positon = (((bbx[0] + bbx[3]) / 2.0), ((bbx[1] + bbx[4]) / 2.0), ((bbx[2] + bbx[5]) / 2.0))
 
-        print(Sel, shapename, positon, transName)
+        self.mesh = sel[0].split(".")[0]
+
+        self.meshCluster = getData(object = self.mesh).get_skinCluster()
+
+        #check if there is a cluster else create a new one
+        if self.meshCluster == None:
+            if pm.objExists(self.mesh+"_Hold_Jnt") == False:
+                self.hold_joint = pm.createNode('joint',n = self.mesh+"_Hold_Jnt")
+                
+            self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
+            cmds.select(cl= 1)
+
+        print(positon, self.mesh, self.meshCluster)
         
 
         #TODO Cluster and Blendshape Function need to be added

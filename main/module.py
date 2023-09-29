@@ -300,6 +300,49 @@ class getData:
 
 
 
+    def NewJnt(self, positonN):
+        objList = cmds.ls("NewVish_*_Jnt")
+        
+        alln = []
+        
+        for n in objList:
+            objNewNum = int(n.split('_')[1])
+            alln.append(objNewNum)
+        alln.sort()
+        
+        alln2 = []
+        for p in range(1,alln[0]):
+            alln2.append(p)
+        
+        for d in range(len(alln)-1):
+            for n in range(alln[d]+1,alln[d+1]):
+                alln2.append(n)
+        
+        cmds.select(d = True)
+        
+        if alln2 != []:
+            if alln2[0] < 10:
+                zro = "0"
+                jntt = cmds.joint(n = "NewVish_"+zro[0]+str(alln2[0])+"_Jnt", p = positonN)
+                cmds.select(d = True)
+                return jntt
+            else:
+                jntt = cmds.joint(n = "NewVish_"+str(alln2[0])+"_Jnt", p = positonN)
+                cmds.select(d = True)
+                return jntt
+                
+        if alln2 == []:
+            if alln[-1]+1 < 10:
+                zro = "0"
+                jntt = cmds.joint(n = "NewVish_"+zro[0]+str(alln[-1]+1)+"_Jnt", p = positonN)
+                cmds.select(d = True)
+                return jntt
+            else:
+                jntt = cmds.joint(n = "NewVish_"+str(alln[-1]+1)+"_Jnt", p = positonN)
+                cmds.select(d = True)
+                return jntt
+
+
 class deformerConvert(getData):
     '''
     Main class for converting deformers to skincluster.
@@ -487,6 +530,20 @@ class deformerConvert(getData):
             cmds.select(cl= 1)
 
         print(positon, self.mesh, self.meshCluster)
+
+
+        SoftJnt = []
+
+        if cmds.objExists("NewVish_01_Jnt") == True:
+            jntNam = getData().NewJnt(positon)
+            SoftJnt.append(jntNam)
+            cmds.skinCluster(self.mesh, edit=True,ai=jntNam,lw = 1, wt = 0)
+            cmds.select(d = True)
+            
+        if cmds.objExists("NewVish_01_Jnt") == False:
+            NwJnt = cmds.joint(n = "NewVish_01_Jnt", p = positon )
+            SoftJnt.append(NwJnt[0])
+            cmds.skinCluster(self.mesh, edit=True,ai="NewVish_01_Jnt",lw = 1, wt = 0)
         
 
         #TODO Cluster and Blendshape Function need to be added
@@ -494,4 +551,5 @@ class deformerConvert(getData):
         #TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
+        # TODO need to update "NewJnt" function.
             

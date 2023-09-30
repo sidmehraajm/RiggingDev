@@ -6,8 +6,7 @@ import maya.cmds as cmds, pymel.core as pm, sys, importlib as imp
 sys.path.append('/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main')
 import module as m
 imp.reload(m)
-
-import pymel.core as pm
+# window 
 win_name = 'vn_skin_tools'
 win_title = 'Skin Tools'
 win_size = (330,300)
@@ -29,12 +28,11 @@ output_win_frame = pm.formLayout('MirrorWeights',parent='Tabs')
 
 radio_layout = pm.rowColumnLayout(nc =2,p = deformer_form,cal =[2,'left'], h = 55)
 radio_coll = pm.radioCollection( parent=radio_layout )
-crv_to_skn_btn = pm.radioButton(l = 'Curve To Skin', p = radio_layout,sl =1,cc = 'crv_skn_cc()')
-softsel_to_skn = pm.radioButton(l = 'Soft Selection To Skin', p = radio_layout,cc = 'softSel_skn_cc()')
-cluster_to_skn = pm.radioButton(l = 'Cluster To Skin', p = radio_layout,cc = 'cl_skn_cc()')
-df_to_skn_btn = pm.radioButton(l = 'Wire/Wrap/Lattice/DeltaMush', p = radio_layout,cc = 'df_skn_cc()')
-
-blendshape_to_skn = pm.radioButton(l = 'Blendshape To Skin', p = radio_layout)
+crv_to_skn_btn = pm.radioButton('crv_skn_rb',l = 'Curve To Skin', p = radio_layout,sl =1,cc = 'crv_skn_cc()')
+softsel_to_skn = pm.radioButton('softsel_skn_rb',l = 'Soft Selection To Skin', p = radio_layout,cc = 'softSel_skn_cc()')
+cluster_to_skn = pm.radioButton('cls_skn_rb',l = 'Cluster To Skin', p = radio_layout,cc = 'cl_skn_cc()')
+df_to_skn_btn = pm.radioButton('restdf_skn_rb',l = 'Wire/Wrap/Lattice/DeltaMush', p = radio_layout,cc = 'df_skn_cc()')
+blendshape_to_skn = pm.radioButton('bs_skn_rb',l = 'Blendshape To Skin', p = radio_layout)
 
 informatipn_txt_f = pm.textField('info_txtf', w = 180 , h=25 ,p = deformer_form,en =0, pht ='Add a Skinned Curve and Mesh',nbg =1)
 
@@ -114,62 +112,7 @@ pm.formLayout(skin_utils_form,e=1,
 
 pm.showWindow(win_name)
 
-class con_to_skn:
-    def __init__(self):
-        self.msh = None
-        self.defr = None
-        
-    def add_mesh(self):
-        try:
-            self.msh = str(pm.ls(sl=1)[0])
-            pm.textField('mesh_field', e=1,tx=self.msh)
-            return self.msh
-            
-        except:
-            pm.error('Please select a Mesh')
-            
-        
-            
-    def add_deformer(self):
-        try:
-            self.defr = str(pm.ls(sl=1)[0])
-            pm.textField('df_field', e=1,tx=self.defr)
-            print(self.defr)
-            return self.defr
-            
-        except:
-            pm.error('Please select a Deformer')
-            
-        
-        
-        #do we need a condition to see like if the right deformer is selected
-
-    
-    def convert_to_skin(self):
-        print(self.defr,self.msh)
-        dc  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
-        dc.deformer_skin_convert()
-
-
-
-con = con_to_skn()
-
-def mesh_add():
-    c = con.add_mesh()
-    
-def deformer_add():     
-    c = con.add_deformer()
-    
-def convert_to_skin():
-    c = con.convert_to_skin()   
-    '''
-    c = con.SoftSelectionToConvert()  
-      
-    c = con.rest_deformer_skin_convert()    
-    '''           
-
-# change commands
-
+#radio button change 
 def crv_skn_cc():
     pm.button(add_mesh_btn,e=1,en = 1)
     pm.button(add_df_btn,e=1,en = 1)
@@ -200,10 +143,71 @@ def df_skn_cc():
     pm.textField(informatipn_txt_f, e = 1,ed=0, nbg=1,pht ='Add Wire/Wrap/Lattice/DeltaMush and a Mesh')
 
 
+#convert functions
+class con_to_skn:
+    def __init__(self):
+        self.msh = None
+        self.defr = None
+        
+    def add_mesh(self):
+        try:
+            self.msh = str(pm.ls(sl=1)[0])
+            pm.textField('mesh_field', e=1,tx=self.msh)
+            return self.msh
+            
+        except:
+            pm.error('Please select a Mesh')
+            
+        
+            
+    def add_deformer(self):
+        try:
+            self.defr = str(pm.ls(sl=1)[0])
+            pm.textField('df_field', e=1,tx=self.defr)
+            print(self.defr)
+            return self.defr
+            
+        except:
+            pm.error('Please select a Deformer')
+                
+    def convert_to_skin(self):
+        print(self.defr,self.msh)
+        dc  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
+        dc.deformer_skin_convert()
+        
+    def rest_deformer(self):
+        print(self.defr,self.msh)
+        dc  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
+        dc.rest_deformer_skin_convert()
+        
+    def SoftSelection(self):
+        print(self.defr,self.msh)
+        dc  = m.deformerConvert(deformer =self.defr, mesh = self.msh)
+        dc.SoftSelectionToConvert()
 
 
+    
+con = con_to_skn()
 
-
+def mesh_add():
+    c = con.add_mesh()
+    
+def deformer_add():     
+    c = con.add_deformer()
+    
+def convert_to_skin():
+    option_functions = {
+        'crv_skn_rb': con.convert_to_skin,
+        'softsel_skn_rb': con.SoftSelection,
+        'restdf_skn_rb': con.rest_deformer,
+    }
+    option = pm.radioCollection(radio_coll, q=1, sl=1)
+    
+    if option in option_functions:
+        c = option_functions[option]()
+    else:
+    
+        print("Option is wip")
 
 
 

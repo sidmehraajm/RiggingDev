@@ -152,6 +152,7 @@ class getData:
 
         pm.skinCluster(meshClust, e=True, siv = unlockJt)
         effectdVrt0 = cmds.ls(sl=True, fl =1 )
+        print(effectdVrt0)
         vertNumb = getData().solvVert(effectdVrt0)
         cmds.select(d =1)
 
@@ -397,6 +398,8 @@ class deformerConvert(getData):
 
         #get unlocked joint to transfer deformer weight
         unlockJnt = getData().getUnlockedJnt(mesh_joints)
+
+        print("unlockJnt", unlockJnt)
             
         #lock all other weights except the first unlocked weight
         pm.setAttr(unlockJnt[0]+'.liw', 1)
@@ -532,6 +535,15 @@ class deformerConvert(getData):
         print(positon, self.mesh, self.meshCluster)
 
 
+        #get influnced joints of the mesh
+        mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
+
+        #get unlocked joint to transfer deformer weight
+        unlockJnt = getData().getUnlockedJnt(mesh_joints)
+
+        self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
+
+        #Add other joints to skin cluster
         SoftJnt = []
 
         if cmds.objExists("NewVish_01_Jnt") == True:
@@ -544,7 +556,26 @@ class deformerConvert(getData):
             NwJnt = cmds.joint(n = "NewVish_01_Jnt", p = positon )
             SoftJnt.append(NwJnt[0])
             cmds.skinCluster(self.mesh, edit=True,ai="NewVish_01_Jnt",lw = 1, wt = 0)
+
+
+        for xx in ["NewVish_01_Jnt"]:
         
+            Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
+
+        
+            #skin apply
+            for R in self.vertNumber:
+                
+                if Fineldistance[self.vertNumber.index(R)] != 0.0:
+        
+                    pm.skinPercent(self.meshCluster,self.mesh+'.vtx['+R+']', tv=(xx, Fineldistance[self.vertNumber.index(R)]))
+
+        for fv in self.inf_jnts:
+            pm.setAttr(fv+'.liw', 0)
+
+
+        #Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
+
 
         #TODO Cluster and Blendshape Function need to be added
         #TODO curve script not working with unlock a joint(solve it)

@@ -57,11 +57,9 @@ class utils:
         while not iter.isDone():
             iter.getDagPath(dagPath, component)
             dagPath.pop()
-            node = dagPath.fullPathName()
             fnComp = om.MFnSingleIndexedComponent(component)
-
             for i in range(fnComp.elementCount()):
-                elements.append([node, fnComp.element(i), fnComp.weight(i).influence()])
+                elements.append([fnComp.element(i), fnComp.weight(i).influence()])
             iter.next()
         return elements
 
@@ -304,8 +302,8 @@ class getData:
 
         return nodes[0]
 
-    def NewJnt(self, positonN):
-        objList = cmds.ls("NewVish_*_Jnt")
+    def NewJnt(self, positonN, MeshNam):
+        objList = cmds.ls(MeshNam + "_*_Jnt")
 
         alln = []
 
@@ -393,8 +391,8 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh + "_Hold_Jnt") == False:
-                self.hold_joint = pm.createNode("joint", n=self.mesh + "_Hold_Jnt")
+            if pm.objExists(self.mesh + "_HoldJnt") == False:
+                self.hold_joint = pm.createNode("joint", n=self.mesh + "_HoldJnt")
 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl=1)
@@ -490,8 +488,8 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh + "_Hold_Jnt") == False:
-                self.hold_joint = pm.createNode("joint", n=self.mesh + "_Hold_Jnt")
+            if pm.objExists(self.mesh + "_HoldJnt") == False:
+                self.hold_joint = pm.createNode("joint", n=self.mesh + "_HoldJnt")
 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl=1)
@@ -502,8 +500,6 @@ class deformerConvert(getData):
         # get effected verticies
         self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
 
-        # print(self.meshCluster)
-        # print(self.inf_jnts)
         # Add other joints to skin cluster
 
         pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True, lw=1, wt=0)
@@ -530,6 +526,7 @@ class deformerConvert(getData):
 
     def SoftSelectionToConvert(self):
         sel = cmds.ls(sl=True)
+
         cmds.select(d=1)
 
         bbx = cmds.xform(sel, q=True, bb=True, ws=True)
@@ -546,13 +543,11 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh + "_Hold_Jnt") == False:
-                self.hold_joint = pm.createNode("joint", n=self.mesh + "_Hold_Jnt")
+            if pm.objExists(self.mesh + "_HoldJnt") == False:
+                self.hold_joint = pm.createNode("joint", n=self.mesh + "_HoldJnt")
 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl=1)
-
-        print(positon, self.mesh, self.meshCluster)
 
         # get influnced joints of the mesh
         mesh_joints = pm.skinCluster(self.mesh, inf=True, q=True)
@@ -565,31 +560,27 @@ class deformerConvert(getData):
         # Add other joints to skin cluster
         SoftJnt = []
 
-        if cmds.objExists("NewVish_01_Jnt") == True:
-            jntNam = getData().NewJnt(positon)
+        if cmds.objExists(self.mesh + "_01_Jnt") == True:
+            jntNam = getData().NewJnt(positon, self.mesh)
             SoftJnt.append(jntNam)
             cmds.skinCluster(self.mesh, edit=True, ai=jntNam, lw=1, wt=0)
             cmds.select(d=True)
 
-        if cmds.objExists("NewVish_01_Jnt") == False:
-            NwJnt = cmds.joint(n="NewVish_01_Jnt", p=positon)
-            SoftJnt.append(NwJnt[0])
-            cmds.skinCluster(self.mesh, edit=True, ai="NewVish_01_Jnt", lw=1, wt=0)
+        if cmds.objExists(self.mesh + "_01_Jnt") == False:
+            NwJnt = cmds.joint(n=self.mesh + "_01_Jnt", p=positon)
+            SoftJnt.append(NwJnt)
+            cmds.skinCluster(self.mesh, edit=True, ai=self.mesh + "_01_Jnt", lw=1, wt=0)
 
-        for xx in ["NewVish_01_Jnt"]:
-            Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
+        cmds.select(sel)
+        for i in utils().softSelection():
+            cmds.select(d=1)
 
-            # skin apply
-            for R in self.vertNumber:
-                if Fineldistance[self.vertNumber.index(R)] != 0.0:
-                    pm.skinPercent(
-                        self.meshCluster,
-                        self.mesh + ".vtx[" + R + "]",
-                        tv=(xx, Fineldistance[self.vertNumber.index(R)]),
-                    )
+            pm.skinPercent(
+                self.meshCluster,
+                self.mesh + ".vtx[" + str(i[0]) + "]",
+                tv=(SoftJnt[0], i[1]),
+            )
 
-        for fv in self.inf_jnts:
-            pm.setAttr(fv + ".liw", 0)
 
         # Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
 
@@ -598,4 +589,4 @@ class deformerConvert(getData):
         # TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
-        # TODO need to update "NewJnt" function.
+        # TODO is there any alternate ?, ask to sid for "NewJnt" function.

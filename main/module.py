@@ -581,6 +581,15 @@ class deformerConvert(getData):
                 tv=(SoftJnt[0], i[1]),
             )
 
+            
+    def ClusterConvert(self):
+
+        sel = pm.ls(sl=True)
+        positon = cmds.getAttr(sel[0]+'.origin')[0]
+
+
+
+
 
         # Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
 

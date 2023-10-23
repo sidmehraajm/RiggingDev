@@ -599,3 +599,16 @@ class deformerConvert(getData):
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
         # TODO is there any alternate ?, ask to sid for "NewJnt" function.
+'''
+
+def NewJnt(positonN, MeshNam):
+    try:
+        idx = int(str(pm.ls(('%s_*_jnt')%(MeshNam))[-1]).replace('_jnt','').replace('%s_'%MeshNam,''))+1
+    except:
+        idx = 1
+    padded_num = "{:0{width}d}".format(idx, width=2)
+    jntname = '%s_%s_jnt'%(MeshNam,padded_num)
+    jnt = pm.createNode('joint',n = jntname)
+    jnt.translate.set(positonN)
+    
+'''

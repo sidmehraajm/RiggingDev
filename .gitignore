@@ -2,3 +2,4 @@
 main/__pycache__/module.cpython-37.pyc
 main/__pycache__/module.cpython-310.pyc
 AutoRiggingFramework.code-workspace
+*.pyc

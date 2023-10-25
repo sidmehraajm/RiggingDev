@@ -146,7 +146,6 @@ class getData:
 
         pm.skinCluster(meshClust, e=True, siv=unlockJt)
         effectdVrt0 = cmds.ls(sl=True, fl=1)
-        print(effectdVrt0)
         vertNumb = getData().solvVert(effectdVrt0)
         cmds.select(d=1)
 
@@ -302,51 +301,20 @@ class getData:
 
         return nodes[0]
 
+
     def NewJnt(self, positonN, MeshNam):
-        objList = cmds.ls(MeshNam + "_*_Jnt")
-
-        alln = []
-
-        for n in objList:
-            objNewNum = int(n.split("_")[1])
-            alln.append(objNewNum)
-        alln.sort()
-
-        alln2 = []
-        for p in range(1, alln[0]):
-            alln2.append(p)
-
-        for d in range(len(alln) - 1):
-            for n in range(alln[d] + 1, alln[d + 1]):
-                alln2.append(n)
-
         cmds.select(d=True)
-
-        if alln2 != []:
-            if alln2[0] < 10:
-                zro = "0"
-                jntt = cmds.joint(
-                    n="NewVish_" + zro[0] + str(alln2[0]) + "_Jnt", p=positonN
-                )
-                cmds.select(d=True)
-                return jntt
-            else:
-                jntt = cmds.joint(n="NewVish_" + str(alln2[0]) + "_Jnt", p=positonN)
-                cmds.select(d=True)
-                return jntt
-
-        if alln2 == []:
-            if alln[-1] + 1 < 10:
-                zro = "0"
-                jntt = cmds.joint(
-                    n="NewVish_" + zro[0] + str(alln[-1] + 1) + "_Jnt", p=positonN
-                )
-                cmds.select(d=True)
-                return jntt
-            else:
-                jntt = cmds.joint(n="NewVish_" + str(alln[-1] + 1) + "_Jnt", p=positonN)
-                cmds.select(d=True)
-                return jntt
+        objList = cmds.ls(MeshNam + "_*_Jnt")
+        number = [int(i.split("_")[1]) for i in objList]
+        
+        nList = []
+        for i in range(1, len(number)+2):
+            if i not in number:
+                nList.append(i)
+                
+        jntt = cmds.joint(n= MeshNam + "_" + str(nList[0]).zfill(3) + "_Jnt", p=positonN)
+        cmds.select(d=True)
+        return jntt
 
 
 class deformerConvert(getData):
@@ -560,16 +528,16 @@ class deformerConvert(getData):
         # Add other joints to skin cluster
         SoftJnt = []
 
-        if cmds.objExists(self.mesh + "_01_Jnt") == True:
+        if cmds.objExists(self.mesh + "_001_Jnt") == True:
             jntNam = getData().NewJnt(positon, self.mesh)
             SoftJnt.append(jntNam)
             cmds.skinCluster(self.mesh, edit=True, ai=jntNam, lw=1, wt=0)
             cmds.select(d=True)
 
-        if cmds.objExists(self.mesh + "_01_Jnt") == False:
-            NwJnt = cmds.joint(n=self.mesh + "_01_Jnt", p=positon)
+        if cmds.objExists(self.mesh + "_001_Jnt") == False:
+            NwJnt = cmds.joint(n=self.mesh + "_001_Jnt", p=positon)
             SoftJnt.append(NwJnt)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.mesh + "_01_Jnt", lw=1, wt=0)
+            cmds.skinCluster(self.mesh, edit=True, ai=self.mesh + "_001_Jnt", lw=1, wt=0)
 
         cmds.select(sel)
         for i in utils().softSelection():
@@ -599,16 +567,3 @@ class deformerConvert(getData):
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
         # TODO is there any alternate ?, ask to sid for "NewJnt" function.
-'''
-
-def NewJnt(positonN, MeshNam):
-    try:
-        idx = int(str(pm.ls(('%s_*_jnt')%(MeshNam))[-1]).replace('_jnt','').replace('%s_'%MeshNam,''))+1
-    except:
-        idx = 1
-    padded_num = "{:0{width}d}".format(idx, width=2)
-    jntname = '%s_%s_jnt'%(MeshNam,padded_num)
-    jnt = pm.createNode('joint',n = jntname)
-    jnt.translate.set(positonN)
-    
-'''

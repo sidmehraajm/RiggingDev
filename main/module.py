@@ -353,7 +353,6 @@ class deformerConvert(getData):
         Use For Curve to Skin
 
         """
-
         # get mesh skin cluster
         self.meshCluster = getData(object=self.mesh).get_skinCluster()
 
@@ -370,8 +369,6 @@ class deformerConvert(getData):
 
         # get unlocked joint to transfer deformer weight
         unlockJnt = getData().getUnlockedJnt(mesh_joints)
-
-        print("unlockJnt", unlockJnt)
 
         # lock all other weights except the first unlocked weight
         pm.setAttr(unlockJnt[0] + ".liw", 1)
@@ -411,7 +408,7 @@ class deformerConvert(getData):
                 Fineldistance, self.hold_skin_value
             )
 
-            # apply skin weight
+            # apply skin weight  
             cmds.setAttr(unlockJnt[0] + ".liw", 0)
             for R in self.vertNumber:
                 if WeightbyPercent[self.vertNumber.index(R)] != 0.0:
@@ -429,6 +426,8 @@ class deformerConvert(getData):
         # cleanup
         if self.meshCluster == []:
             pm.delete(unlockJnt[0])
+
+        pm.disconnectAttr((cmds.listRelatives(self.deformer, shapes=True)[0])+".worldSpace[0]", wireDfm+".deformedWire[0]")
         pm.delete(wireDfm)
         pm.delete(self.deformer + "BaseWire")
 
@@ -474,9 +473,6 @@ class deformerConvert(getData):
 
         for xx in self.inf_jnts:
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
-
-            print(xx)
-            print(Fineldistance)
 
             # skin apply
             for R in self.vertNumber:

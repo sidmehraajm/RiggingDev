@@ -123,7 +123,7 @@ class getData:
         for vert in vertcnt:
             split01 = vert.split("[")
             split02 = split01[-1].split("]")
-
+            #print (vert)
             start = int(split02[0])
 
             totalCounts.append(str(start))
@@ -143,7 +143,7 @@ class getData:
 
         """
         vertNumb = []
-
+        pm.select(cl=1)
         pm.skinCluster(meshClust, e=True, siv=unlockJt)
         effectdVrt0 = cmds.ls(sl=True, fl=1)
         vertNumb = getData().solvVert(effectdVrt0)

@@ -41,7 +41,11 @@ class utils:
             print("Converting DeltaMesh deformer to skin")
 
     def CreateCrv(self):
-        cmds.curve(p=[cmds.xform(d, t=1, q=1, ws=1) for d in cmds.ls(sl=1)])
+        crv = cmds.curve(p=[cmds.xform(d, t=1, q=1, ws=1) for d in cmds.ls(sl=1)])
+        cmds.setAttr(crv+".dispCV", 1)
+        #cmds.setAttr("curveShape1.overrideEnabled", 1)
+        #cmds.setAttr("curveShape1.overrideColor", 5)
+        # TODO should we really add this(create curve) if yes how ?
 
     def softSelection(self):
         selection = om.MSelectionList()
@@ -123,7 +127,6 @@ class getData:
         for vert in vertcnt:
             split01 = vert.split("[")
             split02 = split01[-1].split("]")
-            #print (vert)
             start = int(split02[0])
 
             totalCounts.append(str(start))
@@ -548,8 +551,24 @@ class deformerConvert(getData):
             
     def ClusterConvert(self):
 
-        sel = pm.ls(sl=True)
-        positon = cmds.getAttr(sel[0]+'.origin')[0]
+        positon = cmds.getAttr(self.deformer+'.origin')[0]
+        cmds.select(d =True)
+
+        clust = getData(object=self.mesh).get_skinCluster()
+
+        print(self.mesh, positon, clust)
+
+        if clust==None:
+            if pm.objExists(self.mesh + "_HoldJnt") == False:
+                pm.joint(n = self.mesh + "_HoldJnt")
+                
+            pm.skinCluster(self.mesh + "_HoldJnt", self.mesh)
+
+
+        Meeshjnts = pm.skinCluster(self.mesh, inf = True, q = True)
+        pm.setAttr(Meeshjnts[0]+'.liw', 1)
+
+
 
 
 

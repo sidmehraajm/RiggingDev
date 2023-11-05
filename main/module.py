@@ -184,7 +184,7 @@ class getData:
 
         # ---------------------------------------------------Distance between two vertex
 
-    def VertDistance(self, meshNam, VertNumList, moverNam):
+    def VertDistance(self, meshNam, VertNumList, moverNam, moveType = ".rotatePivot"):
         """
         Calculate the distances between two sets of vertices on a mesh.
 
@@ -214,7 +214,7 @@ class getData:
 
             old_PoseVert.append(set_01Z)
 
-        pm.move(1, moverNam + ".rotatePivot", y=True, r=True)
+        pm.move(1, moverNam + moveType, y=True, r=True)
 
         for xyz in [0, 1, 2]:
             set_02Z = []
@@ -229,7 +229,7 @@ class getData:
 
             New_PoseVert.append(set_02Z)
 
-        pm.move(-1, moverNam + ".rotatePivot", y=True, r=True)
+        pm.move(-1, moverNam + moveType, y=True, r=True)
 
         for o in range(len(VertNumList)):
             x1, y1, z1 = (
@@ -348,6 +348,7 @@ class deformerConvert(getData):
         self.vertNumber = []
         self.hold_skin_value = []
         self.inf_jnts = getData().get_influnced_joints(self.deformer)
+        self.NewjntNam = None
 
     def deformer_skin_convert(self):
         """
@@ -524,19 +525,14 @@ class deformerConvert(getData):
 
         self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
 
-        # Add other joints to skin cluster
-        SoftJnt = []
-
-        if cmds.objExists(self.mesh + "_001_Jnt") == True:
-            jntNam = getData().NewJnt(positon, self.mesh)
-            SoftJnt.append(jntNam)
-            cmds.skinCluster(self.mesh, edit=True, ai=jntNam, lw=1, wt=0)
-            cmds.select(d=True)
+        # Add new joints to skin cluster
 
         if cmds.objExists(self.mesh + "_001_Jnt") == False:
-            NwJnt = cmds.joint(n=self.mesh + "_001_Jnt", p=positon)
-            SoftJnt.append(NwJnt)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.mesh + "_001_Jnt", lw=1, wt=0)
+            self.NewjntNam = cmds.joint(n=self.mesh + "_001_Jnt", p=positon)
+            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+        else:
+            self.NewjntNam = getData().NewJnt(positon, self.mesh)
+            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
 
         cmds.select(sel)
         for i in utils().softSelection():
@@ -545,7 +541,7 @@ class deformerConvert(getData):
             pm.skinPercent(
                 self.meshCluster,
                 self.mesh + ".vtx[" + str(i[0]) + "]",
-                tv=(SoftJnt[0], i[1]),
+                tv=(self.NewjntNam, i[1]),
             )
 
             
@@ -556,8 +552,6 @@ class deformerConvert(getData):
 
         clust = getData(object=self.mesh).get_skinCluster()
 
-        print(self.mesh, positon, clust)
-
         if clust==None:
             if pm.objExists(self.mesh + "_HoldJnt") == False:
                 pm.joint(n = self.mesh + "_HoldJnt")
@@ -565,11 +559,32 @@ class deformerConvert(getData):
             pm.skinCluster(self.mesh + "_HoldJnt", self.mesh)
 
 
-        Meeshjnts = pm.skinCluster(self.mesh, inf = True, q = True)
-        pm.setAttr(Meeshjnts[0]+'.liw', 1)
+        mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
+        #pm.setAttr(mesh_joints[0]+'.liw', 1)
+
+        self.meshCluster = getData(object=self.mesh).get_skinCluster()
+
+        # get effected verticies
+        self.vertNumber = getData().effectedVertNumber(self.meshCluster, self.mesh + "_HoldJnt")
+
+        Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, self.deformer, moveType = "")
 
 
+        if pm.objExists(self.mesh + "_001_Jnt") == False:
+            self.NewjntNam = cmds.joint(n = self.mesh + "_001_Jnt", p = positon)
+            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+        else:
+            self.NewjntNam = getData().NewJnt(positon, self.mesh)
+            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
 
+        # skin apply
+        for R in self.vertNumber:
+            if Fineldistance[self.vertNumber.index(R)] != 0.0:
+                pm.skinPercent(
+                    self.meshCluster,
+                    self.mesh + ".vtx[" + R + "]",
+                    tv=(self.NewjntNam, Fineldistance[self.vertNumber.index(R)]),
+                )
 
 
 

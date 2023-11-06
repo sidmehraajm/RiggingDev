@@ -1,13 +1,16 @@
+import module as m
 import maya.cmds as cmds
 import pymel.core as pm
 import importlib
 import pymel.core as pm
-import maya.cmds as cmds, pymel.core as pm, sys, importlib as imp
+import maya.cmds as cmds
+import pymel.core as pm
+import sys
+import importlib as imp
 
 sys.path.append(
     "/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main"
 )
-import module as m
 
 imp.reload(m)
 # window
@@ -50,7 +53,8 @@ cluster_to_skn = pm.radioButton(
 df_to_skn_btn = pm.radioButton(
     "restdf_skn_rb", l="Wire/Wrap/Lattice/DeltaMush", p=radio_layout, cc="df_skn_cc()"
 )
-blendshape_to_skn = pm.radioButton("bs_skn_rb", l="Blendshape To Skin", p=radio_layout)
+blendshape_to_skn = pm.radioButton(
+    "bs_skn_rb", l="Blendshape To Skin", p=radio_layout)
 
 informatipn_txt_f = pm.textField(
     "info_txtf",
@@ -247,7 +251,8 @@ def cl_skn_cc():
     pm.button(add_df_btn, e=1, en=1)
     pm.textField(mesh_textfield, e=1, en=1, pht="Add Mesh")
     pm.textField(deformer_textfield, e=1, en=1, pht="Add Cluster")
-    pm.textField(informatipn_txt_f, e=1, ed=0, nbg=1, pht="Add a Cluster and Mesh")
+    pm.textField(informatipn_txt_f, e=1, ed=0,
+                 nbg=1, pht="Add a Cluster and Mesh")
 
 
 def df_skn_cc():
@@ -273,8 +278,9 @@ class con_to_skn:
     def add_mesh(self):
         try:
             self.msh = str(pm.ls(sl=1)[0])
-            pm.textField("mesh_field", e=1, tx=self.msh)
-            return self.msh
+            if pm.objectType(pm.ls(pm.listHistory(self.msh), typ="mesh")[0]) == "mesh":
+                pm.textField("mesh_field", e=1, tx=self.msh)
+                return self.msh
 
         except:
             pm.error("Please select a Mesh")
@@ -282,12 +288,48 @@ class con_to_skn:
     def add_deformer(self):
         try:
             self.defr = str(pm.ls(sl=1)[0])
-            pm.textField("df_field", e=1, tx=self.defr)
-            print(self.defr)
-            return self.defr
+            option_functions = {
+                "crv_skn_rb": "curve",
+                "softsel_skn_rb": "soft",
+                "restdf_skn_rb": "rest",
+                "cls_skn_rb": "cluster",
+            }
+            option = pm.radioCollection(radio_coll, q=1, sl=1)
+
+            if option in option_functions:
+                if option_functions[option] == "curve":
+                    if (
+                        pm.objectType(
+                            pm.ls(pm.listHistory(self.defr),
+                                  typ="nurbsCurve")[0]
+                        )
+                        == "nurbsCurve"
+                    ):
+                        pm.textField("df_field", e=1, tx=self.defr)
+                        print(self.defr)
+                        return self.defr
+
+                elif option_functions[option] == "cluster":
+                    if (
+                        pm.objectType(
+                            pm.ls(pm.listHistory(defr), typ="clusterHandle")[0]
+                        )
+                        == "clusterHandle"
+                    ):
+                        pm.textField("df_field", e=1, tx=self.defr)
+                        print(self.defr)
+                        return self.defr
+
+                elif option_functions[option] == "soft":
+                    pm.textField("df_field", e=1, tx=self.defr)
+                    return self.defr
+
+                elif option_functions[option] == "rest":
+                    pm.textField("df_field", e=1, tx=self.defr)
+                    return self.defr
 
         except:
-            pm.error("Please select a Deformer")
+            pm.error("Please select the correct deformer")
 
     def convert_to_skin(self):
         print(self.defr, self.msh)
@@ -303,6 +345,11 @@ class con_to_skn:
         print(self.defr, self.msh)
         dc = m.deformerConvert(deformer=self.defr, mesh=self.msh)
         dc.SoftSelectionToConvert()
+
+    def convert_cluster(self):
+        print(self.defr, self.msh)
+        dc = m.deformerConvert(deformer=self.defr, mesh=self.msh)
+        dc.ClusterConvert()
 
 
 con = con_to_skn()
@@ -321,6 +368,7 @@ def convert_to_skin():
         "crv_skn_rb": con.convert_to_skin,
         "softsel_skn_rb": con.SoftSelection,
         "restdf_skn_rb": con.rest_deformer,
+        "cls_skn_rb": con.convert_cluster,
     }
     option = pm.radioCollection(radio_coll, q=1, sl=1)
 

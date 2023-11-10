@@ -1,4 +1,3 @@
-import module as m
 import maya.cmds as cmds
 import pymel.core as pm
 import importlib
@@ -11,6 +10,7 @@ import importlib as imp
 sys.path.append(
     "/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main"
 )
+import module as m
 
 imp.reload(m)
 # window
@@ -35,8 +35,8 @@ pm.window(
 Tab = pm.tabLayout("Tabs", p=win_name, tc=0, stb=1, snt=1)
 
 deformer_form = pm.formLayout("Converter", parent="Tabs")
-skin_utils_form = pm.formLayout("Import/Export", parent="Tabs")
-output_win_frame = pm.formLayout("MirrorWeights", parent="Tabs")
+skin_utils_form = pm.formLayout("Import/Export", parent="Tabs",en=0,vis=0)
+#output_win_frame = pm.formLayout("MirrorWeights", parent="Tabs")
 
 
 radio_layout = pm.rowColumnLayout(nc=2, p=deformer_form, cal=[2, "left"], h=55)
@@ -308,11 +308,10 @@ class con_to_skn:
                         pm.textField("df_field", e=1, tx=self.defr)
                         print(self.defr)
                         return self.defr
-
                 elif option_functions[option] == "cluster":
                     if (
                         pm.objectType(
-                            pm.ls(pm.listHistory(defr), typ="clusterHandle")[0]
+                            pm.ls(pm.listHistory(self.defr), typ="clusterHandle")[0]
                         )
                         == "clusterHandle"
                     ):
@@ -329,7 +328,7 @@ class con_to_skn:
                     return self.defr
 
         except:
-            pm.error("Please select the correct deformer")
+            pm.error("Please select the correct Deformer/Node")
 
     def convert_to_skin(self):
         print(self.defr, self.msh)

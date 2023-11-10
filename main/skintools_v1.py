@@ -356,6 +356,7 @@ class deformerConvert(getData):
         self.hold_skin_value = []
         self.inf_jnts = getData().get_influnced_joints(self.deformer)
         self.NewjntNam = None
+        self.hold_jnt = '_hold_jnt'
 
     def deformer_skin_convert(self):
         """
@@ -369,8 +370,8 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh + "_HoldJnt") == False:
-                self.hold_joint = pm.createNode("joint", n=self.mesh + "_HoldJnt")
+            if pm.objExists(self.mesh + self.hold_jnt) == False:
+                self.hold_joint = pm.createNode("joint", n=self.mesh + self.hold_jnt)
 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl=1)
@@ -466,8 +467,8 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh + "_HoldJnt") == False:
-                self.hold_joint = pm.createNode("joint", n=self.mesh + "_HoldJnt")
+            if pm.objExists(self.mesh + self.hold_jnt) == False:
+                self.hold_joint = pm.createNode("joint", n=self.mesh + self.hold_jnt)
 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl=1)
@@ -518,8 +519,8 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh + "_HoldJnt") == False:
-                self.hold_joint = pm.createNode("joint", n=self.mesh + "_HoldJnt")
+            if pm.objExists(self.mesh + self.hold_jnt) == False:
+                self.hold_joint = pm.createNode("joint", n=self.mesh + self.hold_jnt)
 
             self.meshCluster = pm.skinCluster(self.hold_joint, self.mesh)
             cmds.select(cl=1)
@@ -560,10 +561,10 @@ class deformerConvert(getData):
         clust = getData(object=self.mesh).get_skinCluster()
 
         if clust==None:
-            if pm.objExists(self.mesh + "_HoldJnt") == False:
-                pm.joint(n = self.mesh + "_HoldJnt")
+            if pm.objExists(self.mesh + self.hold_jnt) == False:
+                pm.joint(n = self.mesh + self.hold_jnt)
                 
-            pm.skinCluster(self.mesh + "_HoldJnt", self.mesh)
+            pm.skinCluster(self.mesh + self.hold_jnt, self.mesh)
 
 
         mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
@@ -572,7 +573,7 @@ class deformerConvert(getData):
         self.meshCluster = getData(object=self.mesh).get_skinCluster()
 
         # get effected verticies
-        self.vertNumber = getData().effectedVertNumber(self.meshCluster, self.mesh + "_HoldJnt")
+        self.vertNumber = getData().effectedVertNumber(self.meshCluster, self.mesh + self.hold_jnt)
 
         Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, self.deformer, moveType = "")
 
@@ -605,7 +606,7 @@ class deformerConvert(getData):
         # TODO you can call function with self.functionName also, but it should be inside the same class
         # TODO is there any alternate ?, ask to sid for "NewJnt" function.
 
-
+#########################################################################################################
 # window
 win_name = "vn_skin_tools"
 win_title = "Skin Tools"
@@ -899,7 +900,6 @@ class con_to_skn:
                         == "nurbsCurve"
                     ):
                         pm.textField("df_field", e=1, tx=self.defr)
-                        print(self.defr)
                         return self.defr
 
                 elif option_functions[option] == "cluster":
@@ -910,7 +910,6 @@ class con_to_skn:
                         == "clusterHandle"
                     ):
                         pm.textField("df_field", e=1, tx=self.defr)
-                        print(self.defr)
                         return self.defr
 
                 elif option_functions[option] == "soft":
@@ -925,22 +924,18 @@ class con_to_skn:
             pm.error("Please select the correct deformer")
 
     def convert_to_skin(self):
-        print(self.defr, self.msh)
         dc =deformerConvert(deformer=self.defr, mesh=self.msh)
         dc.deformer_skin_convert()
 
     def rest_deformer(self):
-        print(self.defr, self.msh)
         dc =deformerConvert(deformer=self.defr, mesh=self.msh)
         dc.rest_deformer_skin_convert()
 
     def SoftSelection(self):
-        print(self.defr, self.msh)
         dc =deformerConvert(deformer=self.defr, mesh=self.msh)
         dc.SoftSelectionToConvert()
 
     def convert_cluster(self):
-        print(self.defr, self.msh)
         dc =deformerConvert(deformer=self.defr, mesh=self.msh)
         dc.ClusterConvert()
 
@@ -964,8 +959,10 @@ def convert_to_skin():
         "cls_skn_rb": con.convert_cluster,
     }
     option = pm.radioCollection(radio_coll, q=1, sl=1)
+    start_time = time.time()
 
     if option in option_functions:
         c = option_functions[option]()
     else:
-        print("Option is wip")
+        print("Conversion Failed")
+    print(time.time() - start_time, "seconds")

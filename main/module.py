@@ -320,6 +320,13 @@ class getData:
         return jntt
 
 
+    def BlendShape(self, Nam):
+        
+        list = cmds.listHistory(Nam)
+        nodes = [i for i in list if pm.nodeType(i)=='blendShape']
+        return nodes
+
+
 class deformerConvert(getData):
     """
     Main class for converting deformers to skincluster.
@@ -588,6 +595,24 @@ class deformerConvert(getData):
                 )
 
 
+
+
+    def blendShapeConvert(self):
+
+        BlendShap = getData().BlendShape(self.mesh)
+
+        WeightName = pm.listAttr(BlendShap[0] +'.w', m =True)
+
+        clust = getData(object=self.mesh).get_skinCluster()
+
+        if clust==None:
+            if pm.objExists(self.mesh +  self.hold_jnt) == False:
+                pm.joint(n = self.mesh +  self.hold_jnt)
+                
+            pm.skinCluster(self.mesh +  self.hold_jnt, self.mesh)
+
+
+        pm.setAttr(BlendShap[0] +'.'+ WeightName[0], 1)
 
 
         # Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)

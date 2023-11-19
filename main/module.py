@@ -329,7 +329,7 @@ class getData:
 
     def BlendShape(self, Nam):
         
-        list = cmds.listHistory(Nam)
+        list = cmds.listHistory(Nam,lv =1)
         nodes = [i for i in list if pm.nodeType(i)=='blendShape']
         return nodes
 

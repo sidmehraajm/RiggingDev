@@ -277,9 +277,10 @@ class con_to_skn:
 
     def add_mesh(self):
         try:
-            self.msh = str(pm.ls(sl=1)[0])
-            if pm.objectType(pm.ls(pm.listHistory(self.msh), typ="mesh")[0]) == "mesh":
-                pm.textField("mesh_field", e=1, tx=self.msh)
+            Mymsh = str(pm.ls(sl=1)[0])
+            if pm.objectType(pm.ls(pm.listHistory(Mymsh), typ="mesh")[0]) == "mesh":
+                pm.textField("mesh_field", e=1, tx=Mymsh)
+                self.msh = Mymsh
                 return self.msh
 
         except:
@@ -287,7 +288,7 @@ class con_to_skn:
 
     def add_deformer(self):
         try:
-            self.defr = str(pm.ls(sl=1)[0])
+            Mydefr = str(pm.ls(sl=1)[0])
             option_functions = {
                 "crv_skn_rb": "curve",
                 "softsel_skn_rb": "soft",
@@ -300,31 +301,35 @@ class con_to_skn:
                 if option_functions[option] == "curve":
                     if (
                         pm.objectType(
-                            pm.ls(pm.listHistory(self.defr),
+                            pm.ls(pm.listHistory(Mydefr),
                                   typ="nurbsCurve")[0]
                         )
                         == "nurbsCurve"
                     ):
-                        pm.textField("df_field", e=1, tx=self.defr)
-                        print(self.defr)
+                        pm.textField("df_field", e=1, tx=Mydefr)
+                        print(Mydefr)
+                        self.defr = Mydefr
                         return self.defr
                 elif option_functions[option] == "cluster":
                     if (
                         pm.objectType(
-                            pm.ls(pm.listHistory(self.defr), typ="clusterHandle")[0]
+                            pm.ls(pm.listHistory(Mydefr), typ="clusterHandle")[0]
                         )
                         == "clusterHandle"
                     ):
-                        pm.textField("df_field", e=1, tx=self.defr)
-                        print(self.defr)
+                        pm.textField("df_field", e=1, tx=Mydefr)
+                        print(Mydefr)
+                        self.defr = Mydefr
                         return self.defr
 
                 elif option_functions[option] == "soft":
-                    pm.textField("df_field", e=1, tx=self.defr)
+                    pm.textField("df_field", e=1, tx=Mydefr)
+                    self.defr = Mydefr
                     return self.defr
 
                 elif option_functions[option] == "rest":
-                    pm.textField("df_field", e=1, tx=self.defr)
+                    pm.textField("df_field", e=1, tx=Mydefr)
+                    self.defr = Mydefr
                     return self.defr
 
         except:

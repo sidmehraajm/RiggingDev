@@ -457,9 +457,8 @@ class deformerConvert(getData):
 
         """
 
-        deformerTyp = getData().deformerType(
-            self.mesh
-        )  # to check type of deformer and set wire rotation 1
+        # to check type of deformer and set wire rotation 1
+        deformerTyp = getData().deformerType(self.mesh)
 
         meshSkinClust = [getData(object=self.mesh).get_skinCluster()]
 
@@ -486,7 +485,6 @@ class deformerConvert(getData):
         self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
 
         # Add other joints to skin cluster
-
         pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True, lw=1, wt=0)
 
         for xx in self.inf_jnts:
@@ -504,7 +502,6 @@ class deformerConvert(getData):
         for fv in self.inf_jnts:
             pm.setAttr(fv + ".liw", 0)
 
-        # ---------------------------------------------------delete_Unwanted_Things
 
     def SoftSelectionToConvert(self):
         sel = cmds.ls(sl=True)
@@ -540,7 +537,6 @@ class deformerConvert(getData):
         self.vertNumber = getData().effectedVertNumber(self.meshCluster, unlockJnt)
 
         # Add new joints to skin cluster
-
         if cmds.objExists(self.mesh + "_001_Jnt") == False:
             self.NewjntNam = cmds.joint(n=self.mesh + "_001_Jnt", p=positon)
             cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
@@ -572,7 +568,6 @@ class deformerConvert(getData):
                 
             pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.mesh)
 
-
         mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
         #pm.setAttr(mesh_joints[0]+'.liw', 1)
 
@@ -582,7 +577,6 @@ class deformerConvert(getData):
         self.vertNumber = getData().effectedVertNumber(self.meshCluster, self.mesh +  self.hold_jntSuffix)
 
         Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, self.deformer, moveType = "")
-
 
         if pm.objExists(self.mesh + "_001_Jnt") == False:
             self.NewjntNam = cmds.joint(n = self.mesh + "_001_Jnt", p = positon)
@@ -643,14 +637,9 @@ class deformerConvert(getData):
                 )
 
 
-
-        # Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
-
-        # TODO Cluster and Blendshape Function need to be added
-        # TODO curve script not working with unlock a joint(solve it)
-        # TODO get_influnced_joints not working for Wire1
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
-        # TODO is there any alternate ?, ask to sid for "NewJnt" function.
 
 
+        # wrap in other direction not working.
+        # have to fix delta mesh deformer.

@@ -15,7 +15,7 @@ import module as m
 imp.reload(m)
 # window
 win_name = "vn_skin_tools"
-win_title = "Skin Tools"
+win_title = "VN Skin Tools"
 win_size = (330, 300)
 if pm.window(win_name, q=1, exists=True):
     pm.deleteUI(win_name, window=True)
@@ -51,8 +51,8 @@ cluster_to_skn = pm.radioButton(
     "cls_skn_rb", l="Cluster To Skin", p=radio_layout, cc="cl_skn_cc()"
 )
 df_to_skn_btn = pm.radioButton(
-    "restdf_skn_rb", l="Wire/Wrap/Lattice/DeltaMush", p=radio_layout, cc="df_skn_cc()"
-)
+    "restdf_skn_rb", l="Wire/Wrap/Lattice", p=radio_layout, cc="df_skn_cc()"
+) #/DeltaMush
 blendshape_to_skn = pm.radioButton(
     "bs_skn_rb", l="Blendshape To Skin", p=radio_layout)
 

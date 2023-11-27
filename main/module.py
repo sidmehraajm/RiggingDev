@@ -640,6 +640,10 @@ class deformerConvert(getData):
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
 
-
-        # wrap in other direction not working.
         # have to fix delta mesh deformer.
+        # delta have really great features but hot to convert it in skin ?
+
+
+        #TODO Sid , Please add mail ID or some link for Linkdin
+        #TODO should we change the name of tool ? ( because there are already tools
+        # name of skin Tool)

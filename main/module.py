@@ -20,32 +20,9 @@ class utils:
     def __init__(self, object=None):
         self.obj = object
 
-    # one defination for all
-    def WhichDeformerButton(self, ddeformer):
-        if ddeformer == "Wire":
-            print("Converting wire deformer to skin")
-
-        if ddeformer == "Lattice":
-            print("Converting Lattice deformer to skin")
-
-        if ddeformer == "Wrap":
-            print("Converting Wrap deformer to skin")
-
-        if ddeformer == "Cluster":
-            print("Converting Cluster deformer to skin")
-
-        if ddeformer == "SoftSelection":
-            print("Converting SoftSelection deformer to skin")
-
-        if ddeformer == "DeltaMesh":
-            print("Converting DeltaMesh deformer to skin")
-
     def CreateCrv(self):
         crv = cmds.curve(p=[cmds.xform(d, t=1, q=1, ws=1) for d in cmds.ls(sl=1)])
         cmds.setAttr(crv+".dispCV", 1)
-        #cmds.setAttr("curveShape1.overrideEnabled", 1)
-        #cmds.setAttr("curveShape1.overrideColor", 5)
-        # TODO should we really add this(create curve) if yes how ?
 
     def softSelection(self):
         selection = om.MSelectionList()
@@ -308,6 +285,8 @@ class getData:
                 nodes.append("wrap")
             if cmds.nodeType(dfm) == "blendShape":
                 nodes.append("blendShape")
+            if cmds.nodeType(dfm) == "deltaMesh":
+                nodes.append("deltaMesh")
 
         return nodes[0]
 
@@ -349,7 +328,8 @@ class deformerConvert(getData):
         meshCluster (str or None): The name of the mesh's skinCluster or None.
         vertNumber (list): List of vertex numbers as strings.
         hold_skin_value (list): List of hold joint's skin weights.
-        inf_jnts (list): List of influenced joint names from the deformer.
+        deformer_inf_jnts (list): List of influenced joint names from the deformer.
+        mesh_inf_jnts (list): List of influenced joint names from the mesh.
 
     """
 
@@ -360,9 +340,11 @@ class deformerConvert(getData):
         self.meshCluster = None
         self.vertNumber = []
         self.hold_skin_value = []
-        self.inf_jnts = getData().get_influnced_joints(self.deformer)
+        self.deformer_inf_jnts = getData().get_influnced_joints(self.deformer)
+        self.Mesh_inf_jnts = getData().get_influnced_joints(self.mesh)
         self.NewjntNam = None
         self.hold_jntSuffix = '_hold_jnt'
+        self.dupMesh = None
 
     def deformer_skin_convert(self):
         """
@@ -405,7 +387,7 @@ class deformerConvert(getData):
             self.hold_skin_value.append(JntVal)
 
         # Add other joints to skin cluster
-        for gfs in self.inf_jnts:
+        for gfs in self.deformer_inf_jnts:
             pm.skinCluster(self.meshCluster, edit=True, ai=gfs, lw=1)
 
         # Create wire deformer
@@ -420,7 +402,7 @@ class deformerConvert(getData):
         )[0]
         pm.setAttr(wireDfm.rotation, 0)
 
-        for xx in self.inf_jnts:
+        for xx in self.deformer_inf_jnts:
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
             WeightbyPercent = getData().WeightByOnePercentage(
                 Fineldistance, self.hold_skin_value
@@ -436,7 +418,7 @@ class deformerConvert(getData):
                         tv=(xx, WeightbyPercent[self.vertNumber.index(R)]),
                     )
 
-        for fv in self.inf_jnts:
+        for fv in self.deformer_inf_jnts:
             pm.setAttr(fv + ".liw", 0)
 
         pm.skinCluster(self.meshCluster, e=True, ri=unlockJnt[0])
@@ -458,7 +440,7 @@ class deformerConvert(getData):
         """
 
         # to check type of deformer and set wire rotation 1
-        deformerTyp = getData().deformerType(self.mesh)
+        getData().deformerType(self.mesh)
 
         meshSkinClust = [getData(object=self.mesh).get_skinCluster()]
 
@@ -478,16 +460,13 @@ class deformerConvert(getData):
             self.meshCluster = pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.mesh)
             cmds.select(cl=1)
 
-        # get influnced joints of the mesh
-        mesh_joints = pm.skinCluster(self.mesh, inf=True, q=True)
-
         # get effected verticies
         self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
 
         # Add other joints to skin cluster
-        pm.skinCluster(self.meshCluster, ai=self.inf_jnts, edit=True, lw=1, wt=0)
+        pm.skinCluster(self.meshCluster, ai=self.deformer_inf_jnts, edit=True, lw=1, wt=0)
 
-        for xx in self.inf_jnts:
+        for xx in self.deformer_inf_jnts:
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
 
             # skin apply
@@ -499,7 +478,7 @@ class deformerConvert(getData):
                         tv=(xx, Fineldistance[self.vertNumber.index(R)]),
                     )
 
-        for fv in self.inf_jnts:
+        for fv in self.deformer_inf_jnts:
             pm.setAttr(fv + ".liw", 0)
 
 
@@ -596,7 +575,6 @@ class deformerConvert(getData):
 
 
 
-
     def blendShapeConvert(self):
 
         self.deformer = getData().BlendShape(self.mesh)
@@ -637,6 +615,50 @@ class deformerConvert(getData):
                 )
 
 
+    def deltaMush_skin_convert(self):
+        """
+        Restore the original skin weights on the mesh after deformer conversion.
+
+        Use for Wire, Wrap, delta Mesh and Lattice
+
+        """
+
+        self.dupMesh = cmds.duplicate(self.mesh, n = self.mesh+"_Test")[0]
+
+        meshSkinClust = [getData(object=self.mesh).get_skinCluster()]
+
+        if not meshSkinClust:  # error if no skin
+            pm.error("<<<<<(No SKIN found on mesh)>>>>>")
+
+        # check if there is a cluster else create a new one
+        if self.meshCluster == None:
+            if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
+                pm.createNode("joint", n=self.mesh +  self.hold_jntSuffix)
+
+            self.meshCluster = pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.dupMesh)
+            cmds.select(cl=1)
+
+        # get effected verticies
+        self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
+
+        # Add other joints to skin cluster
+        pm.skinCluster(self.meshCluster, ai=self.Mesh_inf_jnts, edit=True, lw=1, wt=0)
+
+        for xx in self.Mesh_inf_jnts:
+            Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
+
+            # skin apply
+            for R in self.vertNumber:
+                if Fineldistance[self.vertNumber.index(R)] != 0.0:
+                    pm.skinPercent(
+                        self.meshCluster,
+                        self.dupMesh + ".vtx[" + R + "]",
+                        tv=(xx, Fineldistance[self.vertNumber.index(R)]),
+                    )
+
+        for fv in self.Mesh_inf_jnts:
+            pm.setAttr(fv + ".liw", 0)
+
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
 
@@ -647,3 +669,13 @@ class deformerConvert(getData):
         #TODO Sid , Please add mail ID or some link for Linkdin
         #TODO should we change the name of tool ? ( because there are already tools
         # name of skin Tool)
+
+        # TODO create button for delta and CreateCrv ?
+
+        # TODO remove this lines :-
+'''        if deformerSkinClust in meshSkinClust:  # reomve if same skincluster in mesh
+    meshSkinClust.remove(deformerSkinClust)'''
+
+
+        #deltaMush in joint heirarchy not working for now ( check this on curv also if needed)
+        #deltaMush not copying but creating other geometery

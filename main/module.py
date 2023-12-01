@@ -664,6 +664,7 @@ class deformerConvert(getData):
 
         # have to fix delta mesh deformer.
         # delta have really great features but hot to convert it in skin ?
+        # deltaMush not trustworthy, it is not moving mesh correctly
 
 
         #TODO Sid , Please add mail ID or some link for Linkdin

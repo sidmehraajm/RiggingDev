@@ -659,6 +659,20 @@ class deformerConvert(getData):
         for fv in self.Mesh_inf_jnts:
             pm.setAttr(fv + ".liw", 0)
 
+
+        '''fromName = "Hand_geo3_Test_Test"
+        toName = "Hand_geo3_Test"
+
+
+        listJnt = ["joint13", "joint11", "joint12", "joint15"]
+
+        for d in listJnt:
+            for R in range(4955):
+                dam = cmds.skinPercent( 'skinCluster3', fromName + ".vtx[" + str(R) + "]", transform=d, query=True)
+                cmds.skinPercent('skinCluster2', toName + ".vtx[" + str(R) + "]", tv=(d, dam))'''
+                
+
+
         # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
 

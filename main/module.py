@@ -635,14 +635,17 @@ class deformerConvert(getData):
             if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
                 pm.createNode("joint", n=self.mesh +  self.hold_jntSuffix)
 
-            self.meshCluster = pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.dupMesh)
-            cmds.select(cl=1)
+            pm.skinCluster(meshSkinClust[0], ai=self.mesh +  self.hold_jntSuffix, edit=True, lw=0, wt=0)
+
 
         # get effected verticies
         self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
 
-        # Add other joints to skin cluster
-        pm.skinCluster(self.meshCluster, ai=self.Mesh_inf_jnts, edit=True, lw=1, wt=0)
+        # Add all joints to skin cluster with dupMesh
+        self.meshCluster = pm.skinCluster(self.Mesh_inf_jnts, self.dupMesh)
+        cmds.select(cl=1)
+        pm.skinCluster(self.meshCluster, ai=self.mesh +  self.hold_jntSuffix, edit=True, lw=0, wt=0)
+
 
         for xx in self.Mesh_inf_jnts:
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
@@ -660,17 +663,12 @@ class deformerConvert(getData):
             pm.setAttr(fv + ".liw", 0)
 
 
-        '''fromName = "Hand_geo3_Test_Test"
-        toName = "Hand_geo3_Test"
+        #copyWeight from dup mesh to main mesh
+        cmds.connectAttr(self.meshCluster + ".weightList", meshSkinClust[0].name() + ".weightList",)
+        cmds.disconnectAttr(self.meshCluster + ".weightList", meshSkinClust[0].name() + ".weightList",)
+        cmds.delete(self.dupMesh, self.mesh +  self.hold_jntSuffix)
 
 
-        listJnt = ["joint13", "joint11", "joint12", "joint15"]
-
-        for d in listJnt:
-            for R in range(4955):
-                dam = cmds.skinPercent( 'skinCluster3', fromName + ".vtx[" + str(R) + "]", transform=d, query=True)
-                cmds.skinPercent('skinCluster2', toName + ".vtx[" + str(R) + "]", tv=(d, dam))'''
-                
 
 
         # just to remind myself:- self.variable bnane h har jgha
@@ -694,3 +692,5 @@ class deformerConvert(getData):
 
         #deltaMush in joint heirarchy not working for now ( check this on curv also if needed)
         #deltaMush not copying but creating other geometery
+
+        # double line in blendshape convert  "getData(object=self.mesh).get_skinCluster()"

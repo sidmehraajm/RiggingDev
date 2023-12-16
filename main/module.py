@@ -670,18 +670,9 @@ class deformerConvert(getData):
 
 
 
-
-        # just to remind myself:- self.variable bnane h har jgha
         # TODO you can call function with self.functionName also, but it should be inside the same class
 
-        # have to fix delta mesh deformer.
-        # delta have really great features but hot to convert it in skin ?
-        # deltaMush not trustworthy, it is not moving mesh correctly
-
-
         #TODO Sid , Please add mail ID or some link for Linkdin
-        #TODO should we change the name of tool ? ( because there are already tools
-        # name of skin Tool)
 
         # TODO create button for delta and CreateCrv ?
 
@@ -689,8 +680,4 @@ class deformerConvert(getData):
 '''        if deformerSkinClust in meshSkinClust:  # reomve if same skincluster in mesh
     meshSkinClust.remove(deformerSkinClust)'''
 
-
-        #deltaMush in joint heirarchy not working for now ( check this on curv also if needed)
-        #deltaMush not copying but creating other geometery
-
-        # double line in blendshape convert  "getData(object=self.mesh).get_skinCluster()"
+        #deltaMush working with heirarchy, but there should not be any key (add error)

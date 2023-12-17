@@ -670,14 +670,12 @@ class deformerConvert(getData):
 
 
 
-        # TODO you can call function with self.functionName also, but it should be inside the same class
-
         #TODO Sid , Please add mail ID or some link for Linkdin
 
         # TODO create button for delta and CreateCrv ?
 
         # TODO remove this lines :-
 '''        if deformerSkinClust in meshSkinClust:  # reomve if same skincluster in mesh
-    meshSkinClust.remove(deformerSkinClust)'''
+    meshSkinClust.remove(deformerSkinClust)''' # can we use (lv =1) in ListHistory, i tried it dint work.
 
         #deltaMush working with heirarchy, but there should not be any key (add error)

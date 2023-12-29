@@ -277,17 +277,28 @@ about_txf = pm.button(
     "about_txf",
     w=290,
     h=50,
-    l="Author: Vishal Nagpal",
+    l="UI Author: Siddarth Mehra \n Code Author: Vishal Nagpal " ,
     p=about_form,
     en=1,
     bgc=[0.5, 0.7, 0.7],
     c="pm.launch(web='https://www.linkedin.com/in/vishal-nagpal-82975a149/')",
 )
-link_btn = pm.button(
-    "lnk",
+link_btnVish = pm.button(
+    "lnkVish",
     w=290,
-    h=50,
-    l="LinkedIn",
+    h=25,
+    l="LinkedIn(Siddarth)",
+    p=about_form,
+    en=1,
+    bgc=[0.2, 0.4, 0.76],
+    c="pm.launch(web='https://www.linkedin.com/in/siddarthmehraajm/')",
+)
+
+link_btnSid = pm.button(
+    "lnkSid",
+    w=290,
+    h=25,
+    l="LinkedIn(Vishal)",
     p=about_form,
     en=1,
     bgc=[0.2, 0.4, 0.76],
@@ -311,13 +322,16 @@ pm.formLayout(
     e=1,
     attachForm=[
         (about_txf, "top", 10),
-        (link_btn, "top", 70),
+        (link_btnSid, "top", 90),
+        (link_btnVish, "top", 70),
         (how_to_btn, "top", 130),
         (about_txf, "left", 10),
-        (link_btn, "left", 10),
+        (link_btnSid, "left", 10),
+        (link_btnVish, "left", 10),
         (how_to_btn, "left", 10),
         (about_txf, "right", 10),
-        (link_btn, "right", 10),
+        (link_btnSid, "right", 10),
+        (link_btnVish, "right", 10),
         (how_to_btn, "right", 10),
     ],
 )

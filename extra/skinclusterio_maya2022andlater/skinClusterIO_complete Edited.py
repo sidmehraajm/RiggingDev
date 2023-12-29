@@ -468,20 +468,20 @@ class SkinClusterIO(object):
 		print('ReadData Elapsed: %s'%timeElapsed)
 
 		#...get item data from the dictionary
-		self.legend_Array = data_dict['legend']
-		self.weightsNonZero_Array = np.array(data_dict['weightsNonZero_Array'])
-		self.infMap_Array = np.array(data_dict['infMap_Array'])
-		self.vertSplit_Array = np.array(data_dict['vertSplit_Array'])
-		self.inf_Array = np.array(data_dict['inf_Array'])
-		self.blendWeights = np.array(data_dict['blendWeights'])
-		self.vtxCount = data_dict['vtxCount']
-		self.geometry = data_dict['geometry']
-		self.name = data_dict['name']
-		self.envelope = data_dict['envelope']
-		self.skinningMethod = data_dict['skinningMethod']
-		self.useComponents = data_dict['useComponents']
-		self.normalizeWeights = data_dict['normalizeWeights']
-		self.deformUserNormals = data_dict['deformUserNormals']
+		self.legend_Array = data['legend']
+		self.weightsNonZero_Array = np.array(data['weightsNonZero_Array'])
+		self.infMap_Array = np.array(data['infMap_Array'])
+		self.vertSplit_Array = np.array(data['vertSplit_Array'])
+		self.inf_Array = np.array(data['inf_Array'])
+		self.blendWeights = np.array(data['blendWeights'])
+		self.vtxCount = data['vtxCount']
+		self.geometry = data['geometry']
+		self.name = data['name']
+		self.envelope = data['envelope']
+		self.skinningMethod = data['skinningMethod']
+		self.useComponents = data['useComponents']
+		self.normalizeWeights = data['normalizeWeights']
+		self.deformUserNormals = data['deformUserNormals']
 
 		#...bind skin
 		for inf in self.inf_Array:

@@ -670,9 +670,11 @@ class deformerConvert(getData):
 
 
 
-        #TODO Sid , Please add mail ID or some link for Linkdin
+        #TODO Sid , Please add mail ID
 
-        # TODO create button for delta and CreateCrv ?
+        #TODO "error, 'only one joint' " softseletion convert, when other joint are unlocked, maybe it 
+               #should give error
+
 
         # TODO remove this lines :-
 '''        if deformerSkinClust in meshSkinClust:  # reomve if same skincluster in mesh

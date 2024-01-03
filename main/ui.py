@@ -6,12 +6,12 @@ import maya.cmds as cmds
 import pymel.core as pm
 import sys
 import importlib as imp
+import time
 
-sys.path.append(
-    "/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main"
-)
+
 import transform as tr
 import module as m
+#sys.path.append('/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main')
 
 # window
 win_name = "vn_skin_tools"
@@ -84,12 +84,7 @@ deformer_textfield = pm.textField(
     "df_field", w=180, h=35, pht="Add Skinned Curve", p=deformer_form
 )
 
-override_checkbox = pm.checkBox(
-    label="Override Skin Cluster", align="left", p=deformer_form
-)
-unlocedvtx_checkbox = pm.checkBox(
-    label="Unlocked Influneces Only", align="center", p=deformer_form
-)
+
 
 
 add_mesh_btn = pm.button(
@@ -106,8 +101,17 @@ convert_btn = pm.iconTextButton(
     p=deformer_form,
     w=130,
     h=40,
-    bgc=[(0.23), (0.23), (0.253)],
+    bgc=[(0.33), (0.33), (0.353)],
     c="convert_to_skin()",
+)
+time_elapsed_txf = pm.textField(
+    "time_txtf",
+    w=80,
+    h=25,
+    p=deformer_form,
+    en=0,
+    pht="Time Elapsed: ",
+    nbg=1,
 )
 
 pm.formLayout(
@@ -120,19 +124,22 @@ pm.formLayout(
         (deformer_textfield, "top", 135),
         (add_mesh_btn, "top", 98),
         (add_df_btn, "top", 136),
-        (override_checkbox, "top", 180),
-        (unlocedvtx_checkbox, "top", 200),
-        (convert_btn, "top", 228),
+        (time_elapsed_txf, "top", 230),
+        
+
+        (convert_btn, "top", 190),
         (informatipn_txt_f, "left", 10),
         (radio_layout, "left", 10),
         (mesh_textfield, "left", 10),
         (deformer_textfield, "left", 10),
-        (override_checkbox, "left", 11),
-        (unlocedvtx_checkbox, "left", 11),
+        (time_elapsed_txf, "left", 90),
+
         (convert_btn, "left", 95),
         (informatipn_txt_f, "right", 10),
         (add_mesh_btn, "right", 10),
         (add_df_btn, "right", 10),
+        (time_elapsed_txf, "right", 50),
+        
     ],
 )
 
@@ -175,7 +182,6 @@ path_textfield = pm.textField(
 selectPath_button = pm.iconTextButton(
     "df_btn",
     style="iconAndTextHorizontal",
-    image1="addClip.png",
     l="Select path",
     p=skin_utils_form,
     w=120,
@@ -187,7 +193,6 @@ selectPath_button = pm.iconTextButton(
 import_skn_button = pm.iconTextButton(
     "imp_skn",
     style="iconAndTextHorizontal",
-    image1="addClip.png",
     l="Import Deformer",
     p=skin_utils_form,
     w=150,
@@ -256,7 +261,7 @@ tr_to_crv_btn = pm.button(
     h=50,
     bgc=[(0.2), (0.21), (0.2)],
     en=1,
-    c="jnt_each()",
+    c="tr_crv()",
 )
 pm.formLayout(
     utils_form,
@@ -277,7 +282,7 @@ about_txf = pm.button(
     "about_txf",
     w=290,
     h=50,
-    l="UI Author: Siddarth Mehra \n Code Author: Vishal Nagpal " ,
+    l="Authors:\nVishal Nagpal\nSiddarth Mehra" ,
     p=about_form,
     en=1,
     bgc=[0.5, 0.7, 0.7],
@@ -492,7 +497,7 @@ class con_to_skn:
         except:
             pm.error("Please select the correct Deformer/Node")
 
-    def convert_to_skin(self):
+    def main_convert_to_skin(self):
         print(self.defr, self.msh)
         dc = m.deformerConvert(deformer=self.defr, mesh=self.msh)
         dc.deformer_skin_convert()
@@ -536,7 +541,7 @@ def jnt_each():
     t.CtrJntEach(cmds.ls(sl=1, fl=1))
 
 
-def jnt_each():
+def tr_crv():
     t = tr.JointProc()
     t.transfroms_to_curve(pm.ls(sl=1))
 
@@ -553,8 +558,10 @@ def deformer_add():
 
 
 def convert_to_skin():
+    pm.textField(time_elapsed_txf, e=1, ed=0, nbg=1, pht="Time Elapsed:")
+    start = time.time()
     option_functions = {
-        "crv_skn_rb": con.convert_to_skin,
+        "crv_skn_rb": con.main_convert_to_skin,
         "softsel_skn_rb": con.SoftSelection,
         "restdf_skn_rb": con.rest_deformer,
         "cls_skn_rb": con.convert_cluster,
@@ -567,3 +574,12 @@ def convert_to_skin():
         c = option_functions[option]()
     else:
         print("Option is wip")
+    end = time.time()
+    pm.textField(time_elapsed_txf, e=1, ed=0, nbg=1, pht="Time Elapsed:%d seconds"%(end-start))
+    print('Total time elapsed_%d'%(end-start))
+    
+    
+    
+    
+    
+    

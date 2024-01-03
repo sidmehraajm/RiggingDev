@@ -16,7 +16,7 @@ import module as m
 # window
 win_name = "vn_skin_tools"
 win_title = "VN Skin Tools"
-win_size = (330, 300)
+win_size = (330, 290)
 if pm.window(win_name, q=1, exists=True):
     pm.deleteUI(win_name, window=True)
 
@@ -124,7 +124,7 @@ pm.formLayout(
         (deformer_textfield, "top", 135),
         (add_mesh_btn, "top", 98),
         (add_df_btn, "top", 136),
-        (time_elapsed_txf, "top", 230),
+        (time_elapsed_txf, "top", 235),
         
 
         (convert_btn, "top", 190),

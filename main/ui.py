@@ -203,7 +203,6 @@ import_skn_button = pm.iconTextButton(
 export_skn_button = pm.iconTextButton(
     "exp_skn ",
     style="iconAndTextHorizontal",
-    image1="addClip.png",
     l="Export Deformer",
     p=skin_utils_form,
     w=150,

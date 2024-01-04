@@ -83,12 +83,12 @@ class JointProc:
                     pm.delete(tempPos)
                     print(Jnt)
             else:
-                tempPos = pm.createNode("transform", n="Temp")
-                pm.delete(pm.parentConstraint(i, tempPos))
-                Jnt = pm.createNode("joint", n=(i + "_Jnt"))
+                pm.select(i)
+                tempPos = pm.cluster(n="Temp")[1]
+                Jnt = pm.createNode("joint", n=(i + "Jnt"))
                 pm.delete(pm.parentConstraint(tempPos, Jnt))
                 pm.delete(tempPos)
-                jnts_tr.append(Jnt)
+                print(Jnt)
 
     def transfroms_to_curve(self, cmdsSel=None):
         p = []

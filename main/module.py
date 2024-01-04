@@ -311,6 +311,26 @@ class getData:
         list = cmds.listHistory(Nam,lv =1)
         nodes = [i for i in list if pm.nodeType(i)=='blendShape']
         return nodes
+    
+    def check_connections(self, obj):
+        attributes = ['tx', 'ty', 'tz', 
+                      'rx', 'ry', 'rz',
+                      'sx', 'sy', 'sz']
+
+        for i in attributes:
+            keys = cmds.keyframe(obj + '.' + i, query=True)
+            if keys:
+                print('Please remove all keyframes on joints')
+
+            constraints = cmds.listConnections(obj + '.' + i, type='constraint')
+            if constraints:
+                print('Please remove all constraints on joints')
+
+            connections = cmds.listConnections(obj + '.' + i, plugs=True)
+            if connections:
+                print('Please remove all connections on joints')
+
+
 
 
 class deformerConvert(getData):

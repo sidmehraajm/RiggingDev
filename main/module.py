@@ -322,13 +322,13 @@ class getData:
             if keys:
                 print('Please remove all keyframes on joints')
 
-            constraints = cmds.listConnections(obj + '.' + i, type='constraint')
+            '''constraints = cmds.listConnections(obj + '.' + i, type='constraint')
             if constraints:
                 print('Please remove all constraints on joints')
 
             connections = cmds.listConnections(obj + '.' + i, plugs=True)
             if connections:
-                print('Please remove all connections on joints')
+                print('Please remove all connections on joints')'''
 
 
 
@@ -642,6 +642,8 @@ class deformerConvert(getData):
         Use for Wire, Wrap, delta Mesh and Lattice
 
         """
+        #print (self.Mesh_inf_jnts)
+        #getData().check_connections(self.Mesh_inf_jnts)
 
         self.dupMesh = cmds.duplicate(self.mesh, n = self.mesh+"_Test")[0]
 
@@ -690,14 +692,7 @@ class deformerConvert(getData):
 
 
 
-        #TODO Sid , Please add mail ID
-
         #TODO "error, 'only one joint' " softseletion convert, when other joint are unlocked, maybe it 
                #should give error
-
-
-        # TODO remove this lines :-
-'''        if deformerSkinClust in meshSkinClust:  # reomve if same skincluster in mesh
-    meshSkinClust.remove(deformerSkinClust)''' # can we use (lv =1) in ListHistory, i tried it dint work.
 
         #deltaMush working with heirarchy, but there should not be any key (add error)

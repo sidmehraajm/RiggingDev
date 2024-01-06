@@ -12,6 +12,8 @@ import time
 import transform as tr
 import module as m
 
+imp.reload(tr)
+imp.reload(m)
 # sys.path.append('/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main')
 
 # window

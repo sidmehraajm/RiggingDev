@@ -11,7 +11,8 @@ import time
 
 import transform as tr
 import module as m
-#sys.path.append('/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main')
+
+# sys.path.append('/Users/siddarthmehraajm/Documents/GitHub/AutoRiggingFramework/RiggingDev/main')
 
 # window
 win_name = "vn_skin_tools"
@@ -85,8 +86,6 @@ deformer_textfield = pm.textField(
 )
 
 
-
-
 add_mesh_btn = pm.button(
     "mesh_btn", l="Select Mesh", p=deformer_form, w=120, h=34, c="mesh_add()"
 )
@@ -125,21 +124,17 @@ pm.formLayout(
         (add_mesh_btn, "top", 98),
         (add_df_btn, "top", 136),
         (time_elapsed_txf, "top", 235),
-        
-
         (convert_btn, "top", 190),
         (informatipn_txt_f, "left", 10),
         (radio_layout, "left", 10),
         (mesh_textfield, "left", 10),
         (deformer_textfield, "left", 10),
         (time_elapsed_txf, "left", 90),
-
         (convert_btn, "left", 95),
         (informatipn_txt_f, "right", 10),
         (add_mesh_btn, "right", 10),
         (add_df_btn, "right", 10),
         (time_elapsed_txf, "right", 50),
-        
     ],
 )
 
@@ -281,7 +276,7 @@ about_txf = pm.button(
     "about_txf",
     w=290,
     h=50,
-    l="Authors:\nVishal Nagpal\nSiddarth Mehra" ,
+    l="Authors:\nVishal Nagpal\nSiddarth Mehra",
     p=about_form,
     en=1,
     bgc=[0.5, 0.7, 0.7],
@@ -557,6 +552,7 @@ def deformer_add():
 
 
 def convert_to_skin():
+    pm.select(cl=1)
     pm.textField(time_elapsed_txf, e=1, ed=0, nbg=1, pht="Time Elapsed:")
     start = time.time()
     option_functions = {
@@ -574,11 +570,11 @@ def convert_to_skin():
     else:
         print("Option is wip")
     end = time.time()
-    pm.textField(time_elapsed_txf, e=1, ed=0, nbg=1, pht="Time Elapsed:%d seconds"%(end-start))
-    print('Total time elapsed_%d'%(end-start))
-    
-    
-    
-    
-    
-    
+    pm.textField(
+        time_elapsed_txf,
+        e=1,
+        ed=0,
+        nbg=1,
+        pht="Time Elapsed:%d seconds" % (end - start),
+    )
+    print("Total time elapsed_%d" % (end - start))

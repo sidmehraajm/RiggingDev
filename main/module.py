@@ -1,5 +1,9 @@
-import maya.OpenMaya as om, pymel.core as pm, maya.cmds as cmds
-import time, math, sys
+import maya.OpenMaya as om
+import pymel.core as pm
+import maya.cmds as cmds
+import time
+import math
+import sys
 
 """
 
@@ -21,7 +25,8 @@ class utils:
         self.obj = object
 
     def CreateCrv(self):
-        crv = cmds.curve(p=[cmds.xform(d, t=1, q=1, ws=1) for d in cmds.ls(sl=1)])
+        crv = cmds.curve(p=[cmds.xform(d, t=1, q=1, ws=1)
+                         for d in cmds.ls(sl=1)])
         cmds.setAttr(crv+".dispCV", 1)
 
     def softSelection(self):
@@ -40,7 +45,8 @@ class utils:
             dagPath.pop()
             fnComp = om.MFnSingleIndexedComponent(component)
             for i in range(fnComp.elementCount()):
-                elements.append([fnComp.element(i), fnComp.weight(i).influence()])
+                elements.append(
+                    [fnComp.element(i), fnComp.weight(i).influence()])
             iter.next()
         return elements
 
@@ -161,7 +167,7 @@ class getData:
 
         # ---------------------------------------------------Distance between two vertex
 
-    def VertDistance(self, meshNam, VertNumList, moverNam, moveType = ".rotatePivot", BS = False, WeightName = None):
+    def VertDistance(self, meshNam, VertNumList, moverNam, moveType=".rotatePivot", BS=False, WeightName=None):
         """
         Calculate the distances between two sets of vertices on a mesh.
 
@@ -191,11 +197,10 @@ class getData:
 
             old_PoseVert.append(set_01Z)
 
-
         if BS == False:
             pm.move(1, moverNam + moveType, y=True, r=True)
         else:
-            pm.setAttr(moverNam[0] +'.'+ WeightName[0], 0)
+            pm.setAttr(moverNam[0] + '.' + WeightName[0], 0)
 
         for xyz in [0, 1, 2]:
             set_02Z = []
@@ -213,7 +218,7 @@ class getData:
         if BS == False:
             pm.move(-1, moverNam + moveType, y=True, r=True)
         else:
-            pm.setAttr(moverNam[0] +'.'+ WeightName[0], 1)             
+            pm.setAttr(moverNam[0] + '.' + WeightName[0], 1)
 
         for o in range(len(VertNumList)):
             x1, y1, z1 = (
@@ -290,30 +295,29 @@ class getData:
 
         return nodes[0]
 
-
     def NewJnt(self, positonN, MeshNam):
         cmds.select(d=True)
         objList = cmds.ls(MeshNam + "_*_Jnt")
         number = [int(i.split("_")[1]) for i in objList]
-        
+
         nList = []
         for i in range(1, len(number)+2):
             if i not in number:
                 nList.append(i)
-                
-        jntt = cmds.joint(n= MeshNam + "_" + str(nList[0]).zfill(3) + "_Jnt", p=positonN)
+
+        jntt = cmds.joint(n=MeshNam + "_" +
+                          str(nList[0]).zfill(3) + "_Jnt", p=positonN)
         cmds.select(d=True)
         return jntt
 
-
     def BlendShape(self, Nam):
-        
-        list = cmds.listHistory(Nam,lv =1)
-        nodes = [i for i in list if pm.nodeType(i)=='blendShape']
+
+        list = cmds.listHistory(Nam, lv=1)
+        nodes = [i for i in list if pm.nodeType(i) == 'blendShape']
         return nodes
-    
+
     def check_connections(self, obj):
-        attributes = ['tx', 'ty', 'tz', 
+        attributes = ['tx', 'ty', 'tz',
                       'rx', 'ry', 'rz',
                       'sx', 'sy', 'sz']
 
@@ -329,8 +333,6 @@ class getData:
             connections = cmds.listConnections(obj + '.' + i, plugs=True)
             if connections:
                 print('Please remove all connections on joints')'''
-
-
 
 
 class deformerConvert(getData):
@@ -381,7 +383,8 @@ class deformerConvert(getData):
             if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
                 pm.createNode("joint", n=self.mesh + self.hold_jntSuffix)
 
-            self.meshCluster = pm.skinCluster(self.mesh + self.hold_jntSuffix, self.mesh)
+            self.meshCluster = pm.skinCluster(
+                self.mesh + self.hold_jntSuffix, self.mesh)
             cmds.select(cl=1)
 
         # get influnced joints of the mesh
@@ -428,7 +431,7 @@ class deformerConvert(getData):
                 Fineldistance, self.hold_skin_value
             )
 
-            # apply skin weight  
+            # apply skin weight
             cmds.setAttr(unlockJnt[0] + ".liw", 0)
             for R in self.vertNumber:
                 if WeightbyPercent[self.vertNumber.index(R)] != 0.0:
@@ -447,7 +450,8 @@ class deformerConvert(getData):
         if self.meshCluster == []:
             pm.delete(unlockJnt[0])
 
-        pm.disconnectAttr((cmds.listRelatives(self.deformer, shapes=True)[0])+".worldSpace[0]", wireDfm+".deformedWire[0]")
+        pm.disconnectAttr((cmds.listRelatives(self.deformer, shapes=True)[
+                          0])+".worldSpace[0]", wireDfm+".deformedWire[0]")
         pm.delete(wireDfm)
         pm.delete(self.deformer + "BaseWire")
 
@@ -474,17 +478,20 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
-                pm.createNode("joint", n=self.mesh +  self.hold_jntSuffix)
+            if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
+                pm.createNode("joint", n=self.mesh + self.hold_jntSuffix)
 
-            self.meshCluster = pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.mesh)
+            self.meshCluster = pm.skinCluster(
+                self.mesh + self.hold_jntSuffix, self.mesh)
             cmds.select(cl=1)
 
         # get effected verticies
-        self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
+        self.vertNumber = [str(i) for i in range(
+            cmds.polyEvaluate(self.mesh, v=True))]
 
         # Add other joints to skin cluster
-        pm.skinCluster(self.meshCluster, ai=self.deformer_inf_jnts, edit=True, lw=1, wt=0)
+        pm.skinCluster(self.meshCluster,
+                       ai=self.deformer_inf_jnts, edit=True, lw=1, wt=0)
 
         for xx in self.deformer_inf_jnts:
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
@@ -500,7 +507,6 @@ class deformerConvert(getData):
 
         for fv in self.deformer_inf_jnts:
             pm.setAttr(fv + ".liw", 0)
-
 
     def SoftSelectionToConvert(self):
         sel = cmds.ls(sl=True)
@@ -521,10 +527,11 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
-                pm.createNode("joint", n=self.mesh +  self.hold_jntSuffix)
+            if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
+                pm.createNode("joint", n=self.mesh + self.hold_jntSuffix)
 
-            self.meshCluster = pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.mesh)
+            self.meshCluster = pm.skinCluster(
+                self.mesh + self.hold_jntSuffix, self.mesh)
             cmds.select(cl=1)
 
         # get influnced joints of the mesh
@@ -538,10 +545,12 @@ class deformerConvert(getData):
         # Add new joints to skin cluster
         if cmds.objExists(self.mesh + "_001_Jnt") == False:
             self.NewjntNam = cmds.joint(n=self.mesh + "_001_Jnt", p=positon)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+            cmds.skinCluster(self.mesh, edit=True,
+                             ai=self.NewjntNam, lw=1, wt=0)
         else:
             self.NewjntNam = getData().NewJnt(positon, self.mesh)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+            cmds.skinCluster(self.mesh, edit=True,
+                             ai=self.NewjntNam, lw=1, wt=0)
 
         cmds.select(sel)
         for i in utils().softSelection():
@@ -553,36 +562,39 @@ class deformerConvert(getData):
                 tv=(self.NewjntNam, i[1]),
             )
 
-            
     def ClusterConvert(self):
 
         positon = cmds.getAttr(self.deformer+'.origin')[0]
-        cmds.select(d =True)
+        cmds.select(d=True)
 
         clust = getData(object=self.mesh).get_skinCluster()
 
-        if clust==None:
-            if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
-                pm.joint(n = self.mesh +  self.hold_jntSuffix)
-                
-            pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.mesh)
+        if clust == None:
+            if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
+                pm.joint(n=self.mesh + self.hold_jntSuffix)
 
-        mesh_joints = pm.skinCluster(self.mesh, inf = True, q = True)
-        #pm.setAttr(mesh_joints[0]+'.liw', 1)
+            pm.skinCluster(self.mesh + self.hold_jntSuffix, self.mesh)
+
+        mesh_joints = pm.skinCluster(self.mesh, inf=True, q=True)
+        # pm.setAttr(mesh_joints[0]+'.liw', 1)
 
         self.meshCluster = getData(object=self.mesh).get_skinCluster()
 
         # get effected verticies
-        self.vertNumber = getData().effectedVertNumber(self.meshCluster, self.mesh +  self.hold_jntSuffix)
+        self.vertNumber = getData().effectedVertNumber(
+            self.meshCluster, self.mesh + self.hold_jntSuffix)
 
-        Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, self.deformer, moveType = "")
+        Fineldistance = getData().VertDistance(
+            self.mesh, self.vertNumber, self.deformer, moveType="")
 
         if pm.objExists(self.mesh + "_001_Jnt") == False:
-            self.NewjntNam = cmds.joint(n = self.mesh + "_001_Jnt", p = positon)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+            self.NewjntNam = cmds.joint(n=self.mesh + "_001_Jnt", p=positon)
+            cmds.skinCluster(self.mesh, edit=True,
+                             ai=self.NewjntNam, lw=1, wt=0)
         else:
             self.NewjntNam = getData().NewJnt(positon, self.mesh)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+            cmds.skinCluster(self.mesh, edit=True,
+                             ai=self.NewjntNam, lw=1, wt=0)
 
         # skin apply
         for R in self.vertNumber:
@@ -590,40 +602,42 @@ class deformerConvert(getData):
                 pm.skinPercent(
                     self.meshCluster,
                     self.mesh + ".vtx[" + R + "]",
-                    tv=(self.NewjntNam, Fineldistance[self.vertNumber.index(R)]),
+                    tv=(self.NewjntNam,
+                        Fineldistance[self.vertNumber.index(R)]),
                 )
-
-
 
     def blendShapeConvert(self):
 
         self.deformer = getData().BlendShape(self.mesh)
 
-        WeightNam = pm.listAttr(self.deformer[0] +'.w', m =True)
+        WeightNam = pm.listAttr(self.deformer[0] + '.w', m=True)
 
         clust = getData(object=self.mesh).get_skinCluster()
 
-        if clust==None:
-            if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
-                pm.joint(n = self.mesh +  self.hold_jntSuffix)
-                
-            pm.skinCluster(self.mesh +  self.hold_jntSuffix, self.mesh)
+        if clust == None:
+            if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
+                pm.joint(n=self.mesh + self.hold_jntSuffix)
 
+            pm.skinCluster(self.mesh + self.hold_jntSuffix, self.mesh)
 
-        pm.setAttr(self.deformer[0] +'.'+ WeightNam[0], 1)
+        pm.setAttr(self.deformer[0] + '.' + WeightNam[0], 1)
 
         self.meshCluster = getData(object=self.mesh).get_skinCluster()
 
-        self.vertNumber = getData().effectedVertNumber(self.meshCluster, self.mesh +  self.hold_jntSuffix)
-        
-        Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, self.deformer, moveType = "", BS = True, WeightName = WeightNam)
-        
+        self.vertNumber = getData().effectedVertNumber(
+            self.meshCluster, self.mesh + self.hold_jntSuffix)
+
+        Fineldistance = getData().VertDistance(self.mesh, self.vertNumber,
+                                               self.deformer, moveType="", BS=True, WeightName=WeightNam)
+
         if pm.objExists(self.mesh + "_001_Jnt") == False:
-            self.NewjntNam = cmds.joint(n = self.mesh + "_001_Jnt", p = (0,0,0))
-            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+            self.NewjntNam = cmds.joint(n=self.mesh + "_001_Jnt", p=(0, 0, 0))
+            cmds.skinCluster(self.mesh, edit=True,
+                             ai=self.NewjntNam, lw=1, wt=0)
         else:
-            self.NewjntNam = getData().NewJnt((0,0,0), self.mesh)
-            cmds.skinCluster(self.mesh, edit=True, ai=self.NewjntNam, lw=1, wt=0)
+            self.NewjntNam = getData().NewJnt((0, 0, 0), self.mesh)
+            cmds.skinCluster(self.mesh, edit=True,
+                             ai=self.NewjntNam, lw=1, wt=0)
 
         # skin apply
         for R in self.vertNumber:
@@ -631,9 +645,9 @@ class deformerConvert(getData):
                 pm.skinPercent(
                     self.meshCluster,
                     self.mesh + ".vtx[" + R + "]",
-                    tv=(self.NewjntNam, Fineldistance[self.vertNumber.index(R)]),
+                    tv=(self.NewjntNam,
+                        Fineldistance[self.vertNumber.index(R)]),
                 )
-
 
     def deltaMush_skin_convert(self):
         """
@@ -642,10 +656,10 @@ class deformerConvert(getData):
         Use for Wire, Wrap, delta Mesh and Lattice
 
         """
-        #print (self.Mesh_inf_jnts)
-        #getData().check_connections(self.Mesh_inf_jnts)
+        # print (self.Mesh_inf_jnts)
+        # getData().check_connections(self.Mesh_inf_jnts)
 
-        self.dupMesh = cmds.duplicate(self.mesh, n = self.mesh+"_Test")[0]
+        self.dupMesh = cmds.duplicate(self.mesh, n=self.mesh+"_Test")[0]
 
         meshSkinClust = [getData(object=self.mesh).get_skinCluster()]
 
@@ -654,20 +668,21 @@ class deformerConvert(getData):
 
         # check if there is a cluster else create a new one
         if self.meshCluster == None:
-            if pm.objExists(self.mesh +  self.hold_jntSuffix) == False:
-                pm.createNode("joint", n=self.mesh +  self.hold_jntSuffix)
+            if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
+                pm.createNode("joint", n=self.mesh + self.hold_jntSuffix)
 
-            pm.skinCluster(meshSkinClust[0], ai=self.mesh +  self.hold_jntSuffix, edit=True, lw=0, wt=0)
-
+            pm.skinCluster(
+                meshSkinClust[0], ai=self.mesh + self.hold_jntSuffix, edit=True, lw=0, wt=0)
 
         # get effected verticies
-        self.vertNumber = [str(i) for i in range(cmds.polyEvaluate(self.mesh, v=True))]
+        self.vertNumber = [str(i) for i in range(
+            cmds.polyEvaluate(self.mesh, v=True))]
 
         # Add all joints to skin cluster with dupMesh
         self.meshCluster = pm.skinCluster(self.Mesh_inf_jnts, self.dupMesh)
         cmds.select(cl=1)
-        pm.skinCluster(self.meshCluster, ai=self.mesh +  self.hold_jntSuffix, edit=True, lw=0, wt=0)
-
+        pm.skinCluster(self.meshCluster, ai=self.mesh +
+                       self.hold_jntSuffix, edit=True, lw=0, wt=0)
 
         for xx in self.Mesh_inf_jnts:
             Fineldistance = getData().VertDistance(self.mesh, self.vertNumber, xx)
@@ -684,15 +699,14 @@ class deformerConvert(getData):
         for fv in self.Mesh_inf_jnts:
             pm.setAttr(fv + ".liw", 0)
 
+        # copyWeight from dup mesh to main mesh
+        cmds.connectAttr(self.meshCluster + ".weightList",
+                         meshSkinClust[0].name() + ".weightList",)
+        cmds.disconnectAttr(self.meshCluster + ".weightList",
+                            meshSkinClust[0].name() + ".weightList",)
+        cmds.delete(self.dupMesh, self.mesh + self.hold_jntSuffix)
 
-        #copyWeight from dup mesh to main mesh
-        cmds.connectAttr(self.meshCluster + ".weightList", meshSkinClust[0].name() + ".weightList",)
-        cmds.disconnectAttr(self.meshCluster + ".weightList", meshSkinClust[0].name() + ".weightList",)
-        cmds.delete(self.dupMesh, self.mesh +  self.hold_jntSuffix)
+        # TODO "error, 'only one joint' " softseletion convert, when other joint are unlocked, maybe it
+        # should give error
 
-
-
-        #TODO "error, 'only one joint' " softseletion convert, when other joint are unlocked, maybe it 
-               #should give error
-
-        #deltaMush working with heirarchy, but there should not be any key (add error)
+        # deltaMush working with heirarchy, but there should not be any key (add error)

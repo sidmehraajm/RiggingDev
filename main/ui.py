@@ -314,7 +314,7 @@ how_to_btn = pm.button(
     p=about_form,
     en=1,
     bgc=[0.6, 0.12, 0.12],
-    c="pm.launch(web='https://www.linkedin.com/in/vishal-nagpal-82975a149/')",
+    c="pm.launch(web='https://youtu.be/wTVYchvHAuU/')",
 )
 
 

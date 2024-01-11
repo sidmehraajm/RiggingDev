@@ -1,7 +1,4 @@
 # Maya Skinning Tool
-
-![Maya Skinning Tool Logo](extra/VN Skin Tools-logos_black.png)
-
 ## Welcome to the Maya Skinning Tool Repository!
 
 This tool is a game-changer in the realm of character skin creation and enhancement within Autodesk Maya. Designed to streamline the process and provide users with unprecedented control over character rigs, the Maya Skinning Tool brings efficiency and versatility to your animation workflow.
@@ -18,7 +15,7 @@ This tool is a game-changer in the realm of character skin creation and enhancem
 
 ## Collaboration
 
-This tool is the result of a collaboration with the talented [Vishal Nagpal](https://github.com/VishalNagpal), the visionary behind the system and its initial concept. Together, we've made the tool more robust, enhancing the character rigging experience.
+This tool is the result of a collaboration with the talented [Vishal Nagpal](https://github.com/vishal980-glitch), the visionary behind the system and its initial concept. Together, we've made the tool more robust, enhancing the character rigging experience.
 
 ## Getting Started
 

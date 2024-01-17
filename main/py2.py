@@ -1357,7 +1357,6 @@ def deformer_add():
 
 
 def convert_to_skin():
-    pm.select(cl=1)
     pm.textField(time_elapsed_txf, e=1, ed=0, nbg=1, pht="Time Elapsed:")
     start = time.time()
     option_functions = {

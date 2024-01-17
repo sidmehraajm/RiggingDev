@@ -1,0 +1,22 @@
+Numpy Install for Maya 2022 -
+
+*** All quote lines below "" are intended to be run without quote marks-
+
+#1 Open terminal window- Start, type "cmd", enter
+
+#2 cd to your current Maya/bin directory, for example-
+
+"cd C:\Program Files\Autodesk\Maya2022\bin"
+
+#3 type the following cmds to install numpy. Might need Admin Priveledges and Internet Connection
+
+"mayapy.exe -m pip install --upgrade pip"
+
+"mayapy.exe -m pip install numpy"
+
+#4 Launch or relaunch Maya if it was open.
+
+#5 Open script editor and type the following to confirm Numpy is working
+
+"import numpy"
+"print(numpy.zeros(100))"

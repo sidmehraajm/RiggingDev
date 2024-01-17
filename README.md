@@ -25,7 +25,7 @@ This tool is the result of a collaboration with the talented [Vishal Nagpal](htt
 - Git installed
 
 ### Installation
-
+For Python 3 - 
 1. Clone the repository:
 
    ```bash
@@ -36,6 +36,8 @@ This tool is the result of a collaboration with the talented [Vishal Nagpal](htt
 
 3. The tool can be added to the shelf or used from your script editor for easy access.
 
+   
+For Python 2 - Directly copy the code from py2.py(Inside the main folder) and run, can be added to shelf for easy access
 ## Issues and Feedback
 
 If you encounter any issues or have feedback, please open an issue on the [Issues](https://github.com/sidmehraajm/RiggingDev/issues) tab. We appreciate your input and strive to improve the tool continuously.

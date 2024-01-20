@@ -615,6 +615,7 @@ class deformerConvert(getData):
         clust = getData(object=self.mesh).get_skinCluster()
 
         if clust == None:
+            cmds.select(d=1)
             if pm.objExists(self.mesh + self.hold_jntSuffix) == False:
                 pm.joint(n=self.mesh + self.hold_jntSuffix)
 
